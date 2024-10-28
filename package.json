@@ -1,0 +1,37 @@
+{
+  "name": "auroraexplorer",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyarab/2024-4E-Mitosinka-AuroraExplorer.git"
+  },
+  "keywords": [
+    "Aurora"
+  ],
+  "author": "Josef Mitosinka",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gyarab/2024-4E-Mitosinka-AuroraExplorer/issues"
+  },
+  "homepage": "https://github.com/gyarab/2024-4E-Mitosinka-AuroraExplorer#readme",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.3",
+    "uuid": "^11.0.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13"
+  }
+}
