@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router(); 
 const path = require('path');
-const userController = require('../controllers/usersController');
+const usersController = require('../controllers/usersController');
 
 
 
-router.post("/login", userController.login);
+router.post("/login", usersController.login);
+router.post('/register', usersController.register);
 
-router.get("/user-profile", userController.userProfile);
+router.get("/user-profile", usersController.userProfile);
 
 router.get('/', (req, res) => {
     res.render('index'); 

@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/', require('./routes/routes.js'));
-app.use('/users', require('./routes/users.js'));
+app.use('/users', require('./routes/userRoutes.js'));
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
