@@ -1,7 +1,7 @@
 <header>
     <nav class="bg-gray-900 p-4">
       <div class="mx-auto flex justify-between">
-        <a class="text-white text-xl font-bold">Aurora Explorer - Forecast</a>
+        <a class="text-white text-xl font-bold">Aurora Explorer</a>
 
         <!-- Navbar Menu -->
         <button id="menuToggle" class="md:hidden text-white focus:outline-none">
@@ -16,7 +16,11 @@
           <a href="/forecast" class="text-white hover:text-gray-400">Forecast</a>
           <a href="/gallery" class="text-white hover:text-gray-400">Gallery</a>
           <a href="/guide" class="text-white hover:text-gray-400">Guide</a>
-          <a href="/login" class="bg-blue-600 text-white font-semibold  px-4 rounded-lg hover:bg-blue-500">Login</a>
+          <% if (user) { %>
+            <a href="/users/userProfile" class="bg-blue-600 text-white font-semibold  px-4 rounded-lg hover:bg-gray-500"> <%= user.userName %>  </a>
+          <% } else { %>
+            <a href="/users/login" class="bg-gray-600 text-white font-semibold  px-4 rounded-lg hover:bg-blue-500">Login</a>  
+          <% } %>
         </div>
       </div>
 
@@ -26,7 +30,11 @@
         <a href="/forecast" class="block text-white px-4 py-2 hover:bg-gray-700">Forecast</a>
         <a href="/gallery" class="block text-white px-4 py-2 hover:bg-gray-700">Gallery</a>
         <a href="/guide" class="block text-white px-4 py-2 hover:bg-gray-700">Guide</a>
-        <a href="/login" class="block text-white px-4 py-2 hover:bg-blue-500">Login</a>
+        <% if (user) { %>
+              <a href="/users/userProfile" class="block text-white px-4 py-2 hover:bg-gray-700"> <%= user.userName %>  </a>
+        <% } else { %>
+          <a href="/users/login" class="block text-white px-4 py-2 hover:bg-blue-500">Login</a>
+        <% } %>
       </div>
     </nav>
 
