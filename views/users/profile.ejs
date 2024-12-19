@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="/css/tailwind.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <%- include('../partials/header') %>
+
+    <div class="max-w-4xl mx-auto mt-10 bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-blue-900">Hello, <%= user.userName %>!</h1>
+        <p class="mt-4 text-gray-600">Here is your profile information:</p>
+
+        <div class="mt-6">
+            <p><span class="font-semibold text-gray-800">Username:</span>
+                <%= user.userName %>
+            </p>
+            <p><span class="font-semibold text-gray-800">Email:</span>
+                <%= user.email %>
+            </p>
+        </div>
+
+        <div class="mt-8 flex space-x-4">
+            <a href="/users/edit-profile"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300 ease-in-out">
+                Edit Profile
+            </a>
+            <a href="/users/logout"
+                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300 ease-in-out">
+                Logout
+            </a>
+        </div>
+    </div>
+    </body>
+
+</html>
