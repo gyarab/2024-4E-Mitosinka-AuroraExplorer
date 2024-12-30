@@ -1,22 +1,34 @@
 const jwt = require('jsonwebtoken');
 
-const attachUser = (req, res, next) => {
+const User = require('../models/User'); 
+
+const attachUser = async (req, res, next) => {
+
   const token = req.cookies.authToken;
+
   if (!token) {
     req.user = null;
     return next();
   }
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) {
-      console.error('Token verification failed:', err.message);
-      req.user = null;
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(decoded.id); 
+
+    if (!user) {
+      req.user = null; 
     } else {
-      req.user = user;
-      console.log(user)
+      req.user = user; 
     }
-    next();
-  });
+
+  } catch (err) {
+    console.error('Token verification failed:', err.message);
+    req.user = null; 
+  }
+
+  next();
+
 };
+
 
 module.exports = attachUser;

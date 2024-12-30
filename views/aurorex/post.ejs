@@ -1,0 +1,138 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="<%=GOOGLE_API_KEY%>&libraries=places"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-6 max-w-4xl">
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Share Your Aurora Sighting</h1>
+        
+        <form action="/aurorex/add" method="POST" enctype="multipart/form-data">
+          <!-- image-->
+          <div class="mb-8">
+            <label class="block text-gray-700 text-lg font-semibold mb-2">Upload Image</label>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <input type="file" id="image" name="image" class="hidden" required>
+              <label for="image" class="cursor-pointer">
+                <div class="text-gray-500">
+                  <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  <span class="text-sm">Click to upload or drag and drop</span>
+                </div>
+              </label>
+            </div>
+          </div>
+  
+          <!--location -->
+          <div class="mb-6">
+            <label class="block text-gray-700 text-lg font-semibold mb-2">Location</label>
+            <input type="text" id="location-input" 
+                   class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                   placeholder="Search for a location or click on the map">
+          </div>
+  
+          <!-- map -->
+          <div class="mb-8">
+            <div id="map" class="w-full h-96 rounded-lg shadow-md"></div>
+          </div>
+  
+          <input type="hidden" id="latitude" name="latitude" required>
+          <input type="hidden" id="longitude" name="longitude" required>
+  
+          <!-- description -->
+          <div class="mb-8">
+            <label class="block text-gray-700 text-lg font-semibold mb-2">Description</label>
+            <textarea id="description" name="description" rows="4"
+                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Share your experience..."></textarea>
+          </div>
+  
+          <!-- post button -->
+          <div class="text-center">
+            <button type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg 
+                           transition duration-200 ease-in-out transform hover:scale-105">
+              Share Aurora
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  
+    <script>
+      let map, marker;
+      
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: { lat: 65, lng: 20 }, 
+          zoom: 4,
+          styles: [
+            {
+              featureType: "administrative",
+              elementType: "geometry",
+              stylers: [{ visibility: "simplified" }]
+            },
+            {
+              featureType: "poi",
+              stylers: [{ visibility: "off" }]
+            }
+          ]
+        });
+  
+        const input = document.getElementById('location-input');
+        const searchBox = new google.maps.places.SearchBox(input);
+  
+        map.addListener('click', (e) => {
+          placeMarker(e.latLng);
+        });
+  
+        searchBox.addListener('places_changed', () => {
+          const places = searchBox.getPlaces();
+          if (places.length === 0) return;
+  
+          const place = places[0];
+          if (!place.geometry || !place.geometry.location) return;
+  
+          map.setCenter(place.geometry.location);
+          map.setZoom(12);
+          placeMarker(place.geometry.location);
+        });
+      }
+  
+      function placeMarker(latLng) {
+        if (marker) marker.setMap(null);
+        
+        marker = new google.maps.Marker({
+          position: latLng,
+          map: map,
+          animation: google.maps.Animation.DROP
+        });
+  
+        document.getElementById('latitude').value = latLng.lat();
+        document.getElementById('longitude').value = latLng.lng();
+      }
+  
+      // upload file view
+      const fileInput = document.getElementById('image');
+      fileInput.addEventListener('change', function(e) {
+        const label = this.nextElementSibling;
+        if (this.files && this.files[0]) {
+          label.innerHTML = `<div class="text-green-500">
+            <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span class="text-sm">File selected: ${this.files[0].name}</span>
+          </div>`;
+        }
+      });
+  
+      window.onload = initMap;
+    </script>
+  </body>
+  </html>

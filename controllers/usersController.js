@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const User = require("../models/User")
 const jwt = require("jsonwebtoken")
-
+const path = require('path');
 
 
 exports.register = async (req, res) => {
@@ -55,21 +55,40 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.updateLocation = async (req, res) => {
+  try {
+      const { latitude, longitude, alertRadius } = req.body;
+      const userId = req.user.id;
 
+      await User.findByIdAndUpdate(userId, {
+          location: { latitude, longitude },
+          alertRadius
+      });
+
+      res.status(200).json({ message: 'Location updated' });
+  } catch (error) {
+      res.status(500).json({ error: 'Error updating location' });
+  }
+};
 
 
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const { userName, email } = req.body;
+    let updateData = { userName, email };
 
+    
+    if (req.file) {
+      const profilePicturePath = path.join('/uploads', req.file.filename);
+      updateData.profilePicture = profilePicturePath;
+    }
 
-    await User.findByIdAndUpdate(userId, { userName, email });
+    await User.findByIdAndUpdate(userId, updateData);
 
-
-    //update jwt
+    // update jwt
     const accessToken = jwt.sign(
-      { id: userId, userName: userName, email: email },
+      { id: userId, userName, email },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '1h' }
     );
@@ -80,7 +99,6 @@ exports.updateProfile = async (req, res) => {
     res.status(500).send('Error updating profile: ' + error.message);
   }
 };
-
 
 
 
@@ -110,5 +128,22 @@ exports.changePassword = async (req, res) => {
     res.redirect('/users/profile'); 
   } catch (error) {
     res.status(500).send('Error changing password: ' + error.message);
+  }
+};
+
+exports.uploadProfilePicture = async (req, res) => {
+  try {
+      if (!req.file) {
+          return res.status(400).send('No file uploaded.');
+      }
+
+      const userId = req.user.id; 
+      const filePath = `/uploads/${req.file.filename}`; 
+
+      await User.findByIdAndUpdate(userId, { profilePicture: filePath });
+
+      res.redirect('/users/userProfile');
+  } catch (error) {
+      res.status(500).send('Error uploading profile picture: ' + error.message);
   }
 };

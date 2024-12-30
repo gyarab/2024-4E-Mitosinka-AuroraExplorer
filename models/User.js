@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = new Schema({
     userName: {type: String, required: true},
@@ -8,7 +7,9 @@ const userSchema = new Schema({
     password: {type: String, required: true},
     created_at: {type: Date, default: Date.now},
     updated_at: {type: Date, required: false},
-    //refreshToken: String
+    profilePicture: { type: String, default: '/uploads/default-profile-picture.jpg' },
+    location: { latitude: Number, longitude: Number},
+    alertRadius: {type: Number, default: 50 }
 });
 
 userSchema.set('toJSON', {
@@ -20,8 +21,6 @@ userSchema.set('toJSON', {
 
     },
 });
-
-userSchema.plugin(uniqueValidator, {message: "Email already in use"});
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

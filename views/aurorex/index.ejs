@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurorex</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="<%=GOOGLE_API_KEY%>"></script>
+</head>
+<body class="bg-gray-100">
+
+  <%- include('../partials/header') %>
+
+  <nav class="bg-white shadow-lg mb-6">
+    <div class="container mx-auto px-6 py-3">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">Aurorex</h1>
+        <a href="/aurorex/post" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Create Post</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-6">
+    <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% posts.forEach(post => { %>
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- user info -->
+            <div class="p-4 border-b flex items-center">
+              <img src="<%= post.userId.profilePicture%>" 
+                   alt="Profile Picture" 
+                   class="w-10 h-10 rounded-full object-cover mr-3">
+              <div>
+                <h3 class="font-semibold text-gray-800"><%= post.userId.userName %></h3>
+                <div class="location-display text-sm text-gray-600" data-lat="<%= post.location.latitude %>" data-lng="<%= post.location.longitude %>">
+                  <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <span class="location-text">Loading location...</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="imageModal" class="hidden fixed inset-0 w-full h-full bg-black/90 z-50 cursor-pointer">
+              <button class="absolute top-5 right-8 text-white text-4xl font-bold hover:text-gray-300">&times;</button>
+              <img id="modalImage" class="max-w-[90%] max-h-[90vh] m-auto absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-contain">
+            </div>
+          
+            <!-- Modify the post image section in the loop -->
+            <img src="<%= post.imageUrl %>" 
+                 alt="Aurora Post" 
+                 class="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                 onclick="openModal(this.src)">
+            
+            <!-- post content -->
+            <div class="p-4">
+              <p class="text-sm text-gray-600 mb-4">Posted: <%= new Date(post.timestamp).toLocaleString() %></p>
+              <p class="text-gray-800 mb-4"><%= post.description %></p>
+
+              <!-- likes and comms count-->
+              <div class="flex items-center mb-4">
+                <form action="/aurorex/<%= post._id %>/like" method="POST" class="mr-4">
+                  <button type="submit" class="flex items-center <%= post.likes.some(like => like.userId.toString() === user.id) ? 'text-red-500 hover:text-red-700' : 'text-blue-500 hover:text-blue-700' %>">
+                    <svg class="w-5 h-5 mr-1" fill="<%= post.likes.some(like => like.userId.toString() === user.id) ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <%= post.likes.length %>
+                  </button>
+                </form>
+                </form>
+                <span class="text-gray-600">
+                  <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  </svg>
+                  <%= post.comments.length %>
+                </span>
+              </div>
+
+              <!-- comms section -->
+              <div class="border-t pt-4">
+                <h3 class="font-semibold mb-2">Comments</h3>
+                <div class="max-h-40 overflow-y-auto">
+                  <% post.comments.forEach(comment => { %>
+                    <div class="mb-2 pb-2 border-b last:border-b-0">
+                      <div class="flex items-center mb-1">
+                        <img src="<%= comment.userId.profilePicture || '/images/default-avatar.png' %>" 
+                             alt="Commenter" 
+                             class="w-6 h-6 rounded-full object-cover mr-2">
+                        <span class="font-medium text-sm"><%= comment.userId.userName %></span>
+                      </div>
+                      <p class="text-sm text-gray-800 ml-8"><%= comment.text %></p>
+                      <p class="text-xs text-gray-500 ml-8"><%= new Date(comment.timestamp).toLocaleString() %></p>
+                    </div>
+                  <% }); %>
+                </div>
+
+                <!-- comm form -->
+                <form action="/aurorex/<%= post._id %>/comment" method="POST" class="mt-4">
+                  <div class="flex">
+                    <input type="text" name="text" class="flex-grow px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Add a comment..." required>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600">
+                      Post
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="text-center py-12">
+        <p class="text-gray-600">No posts yet. Be the first to share your aurora sighting!</p>
+      </div>
+    <% } %>
+  </div>
+
+  <script>
+    //modal 
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeButton = modal.querySelector('button');
+
+    function openModal(imgSrc) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex', 'justify-center', 'items-center');
+      modalImg.src = imgSrc;
+      document.body.classList.add('overflow-hidden'); 
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex', 'justify-center', 'items-center');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    // close
+    closeButton.onclick = closeModal;
+
+    // close w outside click
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    }
+
+    // close w escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+    function geocoder() {
+      const geocoder = new google.maps.Geocoder();
+      const locationDisplays = document.querySelectorAll('.location-display');
+      
+      locationDisplays.forEach(display => {
+        const lat = parseFloat(display.dataset.lat);
+        const lng = parseFloat(display.dataset.lng);
+        const locationText = display.querySelector('.location-text');
+
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+          if (status === 'OK' && results[0]) {
+            const address = results[0].formatted_address;
+            locationText.textContent = address;
+          } else {
+            locationText.textContent = `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+          }
+        });
+      });
+    }
+
+    window.onload = geocoder;
+  </script>
+</body>
+</html>
