@@ -9,7 +9,8 @@ const userSchema = new Schema({
     updated_at: {type: Date, required: false},
     profilePicture: { type: String, default: '/uploads/default-profile-picture.jpg' },
     location: { latitude: Number, longitude: Number},
-    alertRadius: {type: Number, default: 50 }
+    alertRadius: {type: Number, default: 50 },
+    notificationsEnabled: { type: Boolean, default: true }
 });
 
 userSchema.set('toJSON', {

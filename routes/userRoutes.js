@@ -57,4 +57,23 @@ router.get('/edit-profile', (req, res) => {
   }
 });
 
+router.post('/toggle-notifications', async (req, res) => {
+  try {
+      const user = await User.findById(req.user.id);
+      user.notificationsEnabled = !user.notificationsEnabled;
+      await user.save();
+      
+      res.json({
+          success: true,
+          enabled: user.notificationsEnabled,
+          message: `Notifications ${user.notificationsEnabled ? 'enabled' : 'disabled'} successfully!`
+      });
+  } catch (error) {
+      res.status(500).json({
+          success: false,
+          message: 'Error updating notification settings'
+      });
+  }
+})
+
 module.exports = router;

@@ -30,6 +30,7 @@ app.use('/', require('./routes/routes.js'));
 app.use('/users', require('./routes/userRoutes.js'));
 app.use('/aurorex', require('./routes/aurorexRoutes.js'));
 
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
   
