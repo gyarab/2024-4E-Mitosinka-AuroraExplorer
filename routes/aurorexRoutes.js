@@ -22,6 +22,8 @@ router.get('/', async (req, res) => {
 }
 });
 
+
+
 router.get('/post', (req, res) => {
   if(req.user){
     res.render('aurorex/post', {GOOGLE_API_KEY: process.env.GOOGLE_API_KEY});
@@ -29,6 +31,8 @@ router.get('/post', (req, res) => {
     res.render('users/login')
   }
 });
+
+
 
 router.delete('/:id', async (req, res) => {
   try {
@@ -46,6 +50,10 @@ router.delete('/:id', async (req, res) => {
     return res.status(500).json({ message: 'Error deleting post' });
   }
 });
+
+
+
+
 
 router.delete('/:postId/comment/:commentId/delete', async (req, res) => {
   try {
