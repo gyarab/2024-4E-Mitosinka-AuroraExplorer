@@ -27,7 +27,7 @@ npm install
 ```bash
 node server.js
 ```
-5. Connect to server at http://localhost:3000
+5. Connect to server at https://localhost:3000
 
 
 ## Note: Some functions might be disabled due to missing database configuration, google API key and nodemailer configuration.
