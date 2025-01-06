@@ -8,11 +8,12 @@ exports.register = async (req, res) => {
   try {
     const { userName, email, password } = req.body;
 
-
+    //hash password
     const saltRounds = 10;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
     console.log(userName, email, password)
 
+    //add user to database
     const newUser = new User({ userName, email, password: hashedPassword });
     await newUser.save();
 
