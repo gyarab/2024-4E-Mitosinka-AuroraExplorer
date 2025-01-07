@@ -19,7 +19,7 @@
           <a href="/aurorex" class="text-white hover:text-gray-400">Aurorex</a>
           <a href="/aurorex/live-map" class="text-white hover:text-gray-400">Live Map</a>
           <% if (user) { %>
-            <a href="/users/profile" class="flex items-center">
+            <a href="/users/profile/<%= user._id %>" class="flex items-center">
               <img src="<%= user.profilePicture %>" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-white hover:border-blue-400 transition duration-300">
             </a>
           <% } else { %>

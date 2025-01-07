@@ -95,7 +95,7 @@ exports.updateProfile = async (req, res) => {
     );
     res.cookie('authToken', accessToken, { httpOnly: true });
 
-    res.redirect('/users/profile');
+    res.redirect('/users/profile/'+userId);
   } catch (error) {
     res.status(500).send('Error updating profile: ' + error.message);
   }
@@ -126,7 +126,7 @@ exports.changePassword = async (req, res) => {
     await user.save();
 
 
-    res.redirect('/users/profile'); 
+    res.redirect('/users/profile/'+userId); 
   } catch (error) {
     res.status(500).send('Error changing password: ' + error.message);
   }
@@ -143,7 +143,7 @@ exports.uploadProfilePicture = async (req, res) => {
 
       await User.findByIdAndUpdate(userId, { profilePicture: filePath });
 
-      res.redirect('/users/userProfile');
+      res.redirect('/users/profile/'+userId);
   } catch (error) {
       res.status(500).send('Error uploading profile picture: ' + error.message);
   }

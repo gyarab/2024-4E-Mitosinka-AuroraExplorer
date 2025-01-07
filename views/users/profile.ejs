@@ -16,19 +16,43 @@
             <!-- user info -->
             <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                 <h1 class="text-4xl font-bold text-blue-900">
+                    <% if (profileUser) { %>
+                    <%= profileUser.userName%>
+                    <% } else { %>
                     <%= user.userName %>
+                    <% } %>
                 </h1>
                 <div class="flex items-center space-x-4">
-                    <img src="<%= user.profilePicture %>" alt="Profile Picture"
-                        class="w-32 h-32 rounded-full object-cover mt-4">
+                    <% if (profileUser) { %>
+                        <img src="<%= profileUser.profilePicture %>" alt="Profile Picture"
+                            class="w-32 h-32 rounded-full object-cover mt-4">
+                    <% } else if(user) { %>
+                        <img src="<%= user.profilePicture %>" alt="Profile Picture"
+                            class="w-32 h-32 rounded-full object-cover mt-4">
+                    <% } %>
                     <div>
-                        <p class="mt-2 text-gray-600"><span class="font-semibold">Email:</span>
-                            <%= user.email %>
+                        <p class=" mt-1 text-gray-600">
+                            <span class="font-semibold">Total posts:</span>
+                            <%= userPosts.length %>
                         </p>
-
+                        <% if (!profileUser) { %>
+                            <p class=" mt-1 text-gray-600"><span class="font-semibold">Email:</span>
+                                <%= user.email %>
+                            </p>
+                        <% } %>
+                        <p class=" mt-1 text-gray-600">
+                            <span class="font-semibold">Member since:</span>
+                            <%= new Date(profileUser ? profileUser.created_at : user.created_at).toLocaleDateString('cs-CZ', { 
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                            }) %>
+                        </p>
                     </div>
                 </div>
+                
 
+                <% if (!profileUser) { %>
                 <div class="mt-8 flex space-x-4">
                     <a href="/users/edit-profile"
                         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300 ease-in-out">
@@ -39,9 +63,11 @@
                         Logout
                     </a>
                 </div>
+                <% } %>
             </div>
 
             <!-- Location -->
+             <% if(!profileUser) { %>
             <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                 <h2 class="text-2xl font-bold text-blue-900 mb-4">User area</h2>
                 <div class="w-full h-64 bg-gray-200 rounded-lg mb-4" id="map"></div>
@@ -77,10 +103,17 @@
                 </button>
                 </div>
             </div>
+            <% } %>
 
             <!-- User Posts Section -->
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold text-blue-900 mb-4">My Posts</h2>
+                <h2 class="text-2xl font-bold text-blue-900 mb-4">
+                   <% if(!profileUser) { %>
+                    My Posts
+                    <% } else if (profileUser) {%>
+                    <%= profileUser.userName %>'s Posts
+                    <% } %>
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <% if (typeof userPosts !=='undefined' && userPosts.length> 0) { %>
                         <% userPosts.forEach(post=> { %>
@@ -89,6 +122,7 @@
                                     class="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity duration-200"
                                     onclick="openModal(this.src)">
                                 <div class="p-4 relative">
+                                    <% if(!profileUser) { %>
                                     <div class="post-actions absolute top-2 right-2">
                                         <button onclick="openDeleteModal('<%= post.id %>')"
                                             class="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100">
@@ -101,11 +135,16 @@
                                             </svg>
                                         </button>
                                     </div>
+                                    <% } %>
                                     <p class="text-gray-800 mb-2">
                                         <%= post.description %>
                                     </p>
                                     <p class="text-sm text-gray-600 mb-2">Posted: <%= new
-                                            Date(post.timestamp).toLocaleString() %>
+                                            Date(post.timestamp).toLocaleDateString('cs-CZ', { 
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit'
+                                            }) %>
                                     </p>
 
                                     <div class="flex items-center mt-2">

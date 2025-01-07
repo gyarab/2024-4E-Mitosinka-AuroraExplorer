@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const Post = require('../models/Post');
+const User = require('../models/User');
 const upload = require('../middleware/upload');
 const { createPost, addComment, toggleLike } = require('../controllers/postController');
 
@@ -21,6 +22,8 @@ router.get('/', async (req, res) => {
   res.render('users/login')
 }
 });
+
+
 
 
 
@@ -86,7 +89,7 @@ router.get('/live-map', (req, res) => {
 router.get('/api/today-posts', async (req, res) => {
   try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(12, 0, 0, 0);
 
     const posts = await Post.find({
       timestamp: { $gte: today }

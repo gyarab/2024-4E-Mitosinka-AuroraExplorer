@@ -29,19 +29,17 @@
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <!-- user info -->
               <div class="p-4 border-b flex items-center">
-                <img src="<%= post.userId.profilePicture%>" alt="Profile Picture"
-                  class="w-10 h-10 rounded-full object-cover mr-3">
+                <a  href="/users/profile/<%= post.userId._id %>" >
+                  <img src="<%= post.userId.profilePicture%>" alt="Profile Picture" class="w-10 h-10 rounded-full object-cover mr-3">
+                </a>
                 <div>
-                  <h3 class="font-semibold text-gray-800">
+                  <a href="/users/profile/<%= post.userId._id %>" class="font-semibold text-gray-800 hover:text-blue-600">
                     <%= post.userId.userName %>
-                  </h3>
-                  <div class="location-display text-sm text-gray-600" data-lat="<%= post.location.latitude %>"
-                    data-lng="<%= post.location.longitude %>">
+                  </a>
+                  <div class="location-display text-sm text-gray-600" data-lat="<%= post.location.latitude %>" data-lng="<%= post.location.longitude %>">
                     <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <span class="location-text">Loading location...</span>
                   </div>
