@@ -2,7 +2,7 @@
 
 ## Fully functional website where you can see, share and get information about aurora borealis
 
-Aurora explorer allows users to see the aurora borealis forecast aswell as share photos of aurora. One of the biggest benefits of this website is the ability to see posts made today on map, so you can look up the nearest place aurora has been seen and posted by another user!
+Aurora explorer allows users to see the aurora borealis forecast aswell as share photos of aurora. One of the biggest benefits of this website is the ability to see posts made today on map, so you can look up the nearest place where aurora has been seen and posted by another user!
 
 # Set up
 
