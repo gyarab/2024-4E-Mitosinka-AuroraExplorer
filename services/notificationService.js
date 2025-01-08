@@ -2,8 +2,10 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 const User = require('../models/User');
 
+//defining the NotificationService class
 class NotificationService {
   constructor() {
+    //set up the transporter for sending emails using Gmail
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -15,21 +17,19 @@ class NotificationService {
       }
     });
   }
-
+  // method to calculate the distance between two geographical points using the Haversine formula 
   calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; 
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
+    const R = 6371; //radius of earth
+    const dLat = (lat2 - lat1) * Math.PI / 180; //latitude difference to radians
+    const dLon = (lon2 - lon1) * Math.PI / 180; //longtitude difference to radians
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2); //the haversine formula
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); // angular distance in radians
+    return R * c; //distance in kilometers 
   }
-
+  //find a user within a specific range of given location
   async findUsersInRange(latitude, longitude) {
     try {
+      //fetching users with existing location and notification ON
         const users = await User.find({
             location: { $exists: true },
             'location.latitude': { $exists: true },
@@ -37,6 +37,7 @@ class NotificationService {
             notificationsEnabled: true 
         });
 
+        //filtering users using previous method based on if they are in the alert radius
         return users.filter(user => {
             if (!user.location || !user.alertRadius) return false;
             
@@ -47,14 +48,14 @@ class NotificationService {
                 longitude
             );
 
-            return distance <= user.alertRadius;
+            return distance <= user.alertRadius; //check if the distance is within alert radius
         });
     } catch (error) {
         console.error('Error finding users in range:', error);
         return [];
     }
 }
-
+  //sending email alerts to users 
   async sendAuroraAlert(user, postData) {
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -82,8 +83,9 @@ class NotificationService {
     };
 
     try {
+      //sending email using transporter
       const result = await this.transporter.sendMail(mailOptions);
-      console.log(`Alert sent to ${user.email}:`, result.messageId);
+      console.log(`Alert sent to ${user.email}:`, result.messageId);//log successful email send
       return true;
     } catch (error) {
       console.error(`Error sending alert to ${user.email}:`, error);
@@ -91,5 +93,6 @@ class NotificationService {
     }
   }
 }
+
 
 module.exports = new NotificationService();

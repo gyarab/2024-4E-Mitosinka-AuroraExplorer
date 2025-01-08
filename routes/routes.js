@@ -9,13 +9,13 @@ router.get('/forecast', (req, res) => {
 res.render('forecast');
 });
   
-router.get('/gallery', (req, res) => {
-  res.render('gallery'); 
+router.get('/guide', (req, res) => {
+  res.render('guide'); 
 });
 
-/*router.get('/*', (req, res) => {
+router.get(/^(?!\/(users|aurorex)).*/, (req, res) => {
   res.status(404).render('404');
-});*/
+});
   
 
 module.exports = router;

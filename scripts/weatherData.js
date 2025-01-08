@@ -28,7 +28,7 @@ function getCurrentWeather(weatherData) {
 //update the weather display on the webpage
 function updateWeatherDisplay(currentWeather, forecastElement, currentElement) {
   if (!currentElement || !forecastElement) return;
-  //current weather status
+  //current weather status display
   currentElement.innerHTML = `
     <h3 class="text-xl md:text-2xl font-bold mb-4 text-center">Current Local Weather</h3>
     <div class="flex flex-col items-center">

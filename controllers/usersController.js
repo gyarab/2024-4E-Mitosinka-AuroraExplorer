@@ -6,20 +6,27 @@ const path = require('path');
 
 exports.register = async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { email, password, userName } = req.body;
 
-    //hash password
-    const saltRounds = 10;
-    const hashedPassword = bcrypt.hashSync(password, saltRounds);
-    console.log(userName, email, password)
+    // check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ 
+        //error message to display if email exists already
+        message: "Email is already registered. Please use a different email address."
+      });
+    }
 
-    //add user to database
-    const newUser = new User({ userName, email, password: hashedPassword });
-    await newUser.save();
+    // create new user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({email, password: hashedPassword ,userName });
 
-    res.redirect('/users/login');
+    await user.save();
+
+    res.status(201).json({ message: "Registration successful" });
+
   } catch (error) {
-    res.status(500).send('Error registering user: ' + error.message);
+    res.status(500).json({ message: "Error during registration: " + error.message });
   }
 };
 
@@ -33,24 +40,22 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).send('Invalid email or password');
+      return res.status(400).json({message: 'Invalid email or password' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).send('Invalid email or password');
+      return res.status(400).json({message: 'Invalid email or password' });
     }
-    console.log(email, password, user._id);
-
+    //create JWT with user detail and secret key
     const accessToken = jwt.sign(
       { id: user._id, userName: user.userName, email: user.email },
-      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_SECRET, //secret key for signing token
       { expiresIn: '1h' }
     );
-    console.log(accessToken + " " + user._id + " " + user.userName);
-
+    //set JWT as a cookie name authToken
     res.cookie('authToken', accessToken, { httpOnly: true });
-    res.redirect('/');
+    res.json({ success: true });
   } catch (error) {
     res.status(500).send('Error logging in: ' + error.message);
   }
@@ -79,7 +84,7 @@ exports.updateProfile = async (req, res) => {
     const { userName, email } = req.body;
     let updateData = { userName, email };
 
-    
+    //check if profile picture was uploaded
     if (req.file) {
       const profilePicturePath = path.join('/uploads', req.file.filename);
       updateData.profilePicture = profilePicturePath;
@@ -87,7 +92,7 @@ exports.updateProfile = async (req, res) => {
 
     await User.findByIdAndUpdate(userId, updateData);
 
-    // update jwt
+    // update jwt with new user data and signing it again with secret key
     const accessToken = jwt.sign(
       { id: userId, userName, email },
       process.env.ACCESS_TOKEN_SECRET,
@@ -110,7 +115,7 @@ exports.changePassword = async (req, res) => {
   try {
 
     const user = await User.findById(req.user.id);
-
+    //check if pswd is correct
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.status(400).send('Current password is incorrect.');
@@ -119,7 +124,7 @@ exports.changePassword = async (req, res) => {
     if (newPassword !== confirmPassword) {
       return res.status(400).send('New passwords do not match.');
     }
-
+    //hash new password and save to db
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     user.password = hashedPassword;
@@ -137,10 +142,10 @@ exports.uploadProfilePicture = async (req, res) => {
       if (!req.file) {
           return res.status(400).send('No file uploaded.');
       }
-
+      
       const userId = req.user.id; 
       const filePath = `/uploads/${req.file.filename}`; 
-
+      //find user and update profile picture
       await User.findByIdAndUpdate(userId, { profilePicture: filePath });
 
       res.redirect('/users/profile/'+userId);
