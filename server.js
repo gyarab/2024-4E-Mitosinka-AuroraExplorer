@@ -21,15 +21,14 @@ app.use(logger);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.json());
-app.use(express.urlencoded({extended: false}));
 
+app.use(express.json());
+
+app.use(express.urlencoded({extended: false}));
 connectDB();
 
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(cookieParser());
-
 app.use(attachUser); 
 app.use((req, res, next) => {
   res.locals.user = req.user || null;

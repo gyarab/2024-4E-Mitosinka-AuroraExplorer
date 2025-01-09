@@ -263,7 +263,7 @@
             });
 
 
-
+            // toggle notifications on/off
             document.getElementById('notificationToggle').addEventListener('change', async function () {
                 try {
                     const response = await fetch('/users/toggle-notifications', {
@@ -278,7 +278,7 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    // Revert the toggle if there was an error
+                    // revert the toggle if there was an error
                     this.checked = !this.checked;
                     alert('Error updating notification settings');
                 }
@@ -372,16 +372,18 @@
                 }
             });
 
-            // location
+            // convert coordinates to address
             function geocodeLocations() {
                 const geocoder = new google.maps.Geocoder();
                 const locationDisplays = document.querySelectorAll('.location-display');
 
                 locationDisplays.forEach(display => {
+                    // parse the latitude and longitude
                     const lat = parseFloat(display.dataset.lat);
                     const lng = parseFloat(display.dataset.lng);
                     const locationText = display.querySelector('.location-text');
 
+                    // use the geocoder to convert the latitude and longitude to address
                     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
                         if (status === 'OK' && results[0]) {
                             locationText.textContent = results[0].formatted_address;

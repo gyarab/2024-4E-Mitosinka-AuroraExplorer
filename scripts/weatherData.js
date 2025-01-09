@@ -30,31 +30,42 @@ function updateWeatherDisplay(currentWeather, forecastElement, currentElement) {
   if (!currentElement || !forecastElement) return;
   //current weather status display
   currentElement.innerHTML = `
-    <h3 class="text-xl md:text-2xl font-bold mb-4 text-center">Current Local Weather</h3>
+  <div class="hover:bg-gray-50 rounded-lg p-6 transition-colors">
+    <h3 class="text-xl md:text-2xl font-bold mb-4 text-center text-gray-600">Current Local Weather</h3>
     <div class="flex flex-col items-center">
-      <img src="https://openweathermap.org/img/wn/${currentWeather.icon}@2x.png" alt="Weather icon">
-      <p class="text-xl">${currentWeather.temperature}°C</p>
-      <p class="capitalize">${currentWeather.description}</p>
-      <p>Cloud Cover: ${currentWeather.clouds}%</p>
-      <p>Humidity: ${currentWeather.humidity}%</p>
-      <p>Wind: ${currentWeather.windSpeed} km/h</p>
+      <img
+        src="https://openweathermap.org/img/wn/${currentWeather.icon}@2x.png"
+        alt="Weather icon"
+        class="mx-auto w-12 h-12"
+      >
+      <p class="text-lg font-semibold text-gray-600 my-2">${currentWeather.temperature}°C</p>
+      <p class="text-sm text-gray-600 capitalize mb-2">${currentWeather.description}</p>
+      <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+        <p>Cloud Cover: ${currentWeather.clouds}%</p>
+        <p>Humidity: ${currentWeather.humidity}%</p>
+        <p>Wind: ${currentWeather.windSpeed} km/h</p>
+      </div>
+    </div>
+  </div>
+`;
+
+forecastElement.innerHTML = '';
+
+currentWeather.forecast.forEach((item, i) => {
+  const forecast = document.createElement('div');
+  forecast.className = 'text-center p-2 border-r last:border-r-0 border-gray-200';
+  forecast.innerHTML = `
+    <div class="hover:bg-gray-50 rounded-lg p-2 transition-colors">
+      <p class="text-sm text-gray-600 font-medium mb-1">+${(i + 1) * 6}h</p>
+      <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png"
+           alt="Weather icon"
+           class="mx-auto w-12 h-12">
+      <p class="text-lg font-semibold text-gray-800">${Math.round(item.main.temp)}°C</p>
+      <p class="text-sm text-gray-600">${item.clouds.all}% clouds</p>
     </div>
   `;
-
-  forecastElement.innerHTML = '';
-
-  //display the forcast
-  currentWeather.forecast.forEach((item, i) => {
-    const forecast = document.createElement('div');
-    forecast.className = 'text-center p-2';
-    forecast.innerHTML = `
-      <p class="text-sm mb-1">+${(i + 1) * 6}h</p>
-      <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png" alt="Weather icon" class="mx-auto">
-      <p class="text-sm">${Math.round(item.main.temp)}°C</p>
-      <p class="text-sm">${item.clouds.all}% clouds</p>
-    `;
-    forecastElement.appendChild(forecast);
-  });
+  forecastElement.appendChild(forecast);
+});
 }
 
 //initialize the weather tracking on the page
@@ -107,6 +118,98 @@ async function initWeatherTracking() {
     }
   }
 }
+
+class WeatherMap {
+  constructor() {
+    this.map = null;
+    this.marker = null;
+    this.cloudLayer = null;
+  }
+
+  initMap(latitude, longitude, cloudCoverage) {
+    // Initialize map
+    this.map = L.map('weather-map').setView([latitude, longitude], 10);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    // Add marker for current location
+    this.marker = L.marker([latitude, longitude]).addTo(this.map);
+
+    // Add cloud coverage visualization
+    this.updateCloudCoverage(latitude, longitude, cloudCoverage);
+  }
+
+  updateCloudCoverage(latitude, longitude, cloudPercentage) {
+    if (this.cloudLayer) {
+      this.map.removeLayer(this.cloudLayer);
+    }
+
+    // Create a circle with opacity based on cloud coverage
+    const opacity = cloudPercentage / 100;
+    this.cloudLayer = L.circle([latitude, longitude], {
+      color: 'white',
+      fillColor: '#b7b7b7',
+      fillOpacity: opacity,
+      radius: 5000 // 5km radius
+    }).addTo(this.map);
+
+    // Update marker popup with cloud info
+    this.marker.bindPopup(`Cloud Coverage: ${cloudPercentage}%`).openPopup();
+  }
+}
+
+// Modify your WeatherTracker class to include the map
+class WeatherTracker {
+  constructor(apiKey) {
+    // ... existing constructor code ...
+    this.weatherMap = new WeatherMap();
+  }
+
+  async initWeather() {
+    // ... existing initWeather code until position is obtained ...
+
+    try {
+      if (window.location.protocol !== 'https:') {
+        throw new Error('Secure connection required');
+      }
+
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const { latitude, longitude } = position.coords;
+      const weatherData = await this.fetchWeatherData(latitude, longitude);
+      const currentWeather = this.getCurrentWeather(weatherData);
+      
+      // Initialize map after getting weather data
+      this.weatherMap.initMap(latitude, longitude, currentWeather.clouds);
+      
+      this.updateWeatherDisplay(currentWeather);
+
+      // Set up automatic updates
+      setInterval(async () => {
+        const newData = await this.fetchWeatherData(latitude, longitude);
+        const newCurrent = this.getCurrentWeather(newData);
+        this.updateWeatherDisplay(newCurrent);
+        // Update map with new cloud coverage
+        this.weatherMap.updateCloudCoverage(latitude, longitude, newCurrent.clouds);
+      }, this.updateInterval);
+
+    } catch (error) {
+      console.error('Weather tracking error:', error);
+      if (this.errorElement) {
+        this.errorElement.textContent = error.message === 'Secure connection required'
+          ? 'Secure connection has not been established'
+          : 'Unable to fetch weather data. Please enable location services and refresh.';
+      }
+    }
+  }
+}
+
+
 //expose init function to window object and export for use
 window.initWeatherTracking = initWeatherTracking;
 export { initWeatherTracking };

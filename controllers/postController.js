@@ -1,6 +1,7 @@
 const Post = require('../models/Post');
 const notificationService = require('../services/notificationService.js');
 
+//creating post
 exports.createPost = async (req, res) => {
  try {
      const { latitude, longitude, description } = req.body;
@@ -49,6 +50,7 @@ exports.createPost = async (req, res) => {
    }
  };
 
+ //adding comment on post
 exports.addComment = async (postId, userId, text) => {
   const post = await Post.findById(postId);
   if (!post) {
@@ -59,7 +61,7 @@ exports.addComment = async (postId, userId, text) => {
   await post.save();
 };
 
-
+//toggle like on post
 exports.toggleLike = async (postId, userId) => {
   const post = await Post.findById(postId);
   if (!post) {

@@ -49,6 +49,7 @@
 
 
   <script>
+    //error handling
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
       event.preventDefault();
       
@@ -67,10 +68,10 @@
         });
         
         if (response.ok) {
-          window.location.href = '/';
+          window.location.href = '/'; //redirect to homepage
         } else {
           const data = await response.json();
-          // Show error message
+          // show error message
           errorMessage.textContent = data.message || 'Incorrect email or password';
           errorContainer.classList.remove('hidden');
         }
