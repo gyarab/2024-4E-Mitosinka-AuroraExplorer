@@ -64,6 +64,14 @@ node server.js
 ```
 6. Connect to server at https://localhost:3000
 
+## Note
+
+### Some features might be disabled without configuration of:
+ - Database connection
+ - Google Maps link with API key
+ - Email configuration
+ - OpenWeatherMap API key
+
 
 
 

@@ -1,3 +1,8 @@
+ ______________________________
+/                              \
+|  :Full request log history:  |
+\______________________________/
+
 20241030	16:47:03	aa5ced73-118d-4b3e-a0bf-9c583bc8f7e4	GET	undefined	/favicon.ico
 20241030	16:47:08	08ee9f19-4004-4601-a7a0-5964e539e177	GET	undefined	/
 20241030	16:47:11	cfd4b7c6-b350-4d4c-8ddd-054fd2fb5b35	GET	undefined	/forecast.html
@@ -12718,3 +12723,7 @@
 20250111	15:22:07	4f7db3b7-02df-4811-a9f9-1409ed3f40ed	GET	https://10.34.11.31:3000	/scripts/kPforecast.js
 20250111	15:22:07	161779fd-2de6-439f-9a61-53dd3e05871b	GET	undefined	/uploads/default-profile-picture.jpg
 20250111	15:22:07	23cc36f0-0981-4612-b61f-7eec93fd6f3d	GET	https://10.34.11.31:3000	/scripts/weatherData.js
+20250111	16:12:45	b15178a7-f202-472b-b1cb-ccd7a1b481eb	GET	undefined	/
+20250111	16:12:45	fcadc1aa-2f69-4b0c-b51a-50ad9a612a64	GET	undefined	/css/style.css
+20250111	16:12:45	42cbbacd-464e-408d-9e8a-cd14a391594f	GET	undefined	/images/mainAurora.jpg
+20250111	16:12:45	d4ed34dd-5c8a-443d-bf12-e01b84432aa4	GET	undefined	/favicon.ico
