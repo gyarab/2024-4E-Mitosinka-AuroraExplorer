@@ -8,21 +8,21 @@ const { createPost, addComment, toggleLike } = require('../controllers/postContr
 
 
 router.get('/', async (req, res) => {
-  if(req.user){
-  try {
-    // fetch all posts, populate user and comments data, and sort by time from newest
-    const posts = await Post.find()
-  .populate('userId', 'userName profilePicture')
-  .populate('comments.userId', 'userName profilePicture')
-  .sort({ timestamp: -1 });
-  //render homepage with posts and google API KEY for showing location
-    res.render('aurorex/index', { posts, GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
-  } catch (error) {
-    res.status(500).send('Error fetching posts: ' + error.message);
+  if (req.user) {
+    try {
+      // fetch all posts, populate user and comments data, and sort by time from newest
+      const posts = await Post.find()
+        .populate('userId', 'userName profilePicture')
+        .populate('comments.userId', 'userName profilePicture')
+        .sort({ timestamp: -1 });
+      //render homepage with posts and google API KEY for showing location
+      res.render('aurorex/index', { posts, GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
+    } catch (error) {
+      res.status(500).send('Error fetching posts: ' + error.message);
+    }
+  } else {
+    res.render('users/login')
   }
-}else{
-  res.render('users/login')
-}
 });
 
 
@@ -30,9 +30,9 @@ router.get('/', async (req, res) => {
 
 
 router.get('/post', (req, res) => {
-  if(req.user){
-    res.render('aurorex/post', {GOOGLE_API_KEY: process.env.GOOGLE_API_KEY});
-  }else{
+  if (req.user) {
+    res.render('aurorex/post', { GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
+  } else {
     res.render('users/login')
   }
 });
@@ -99,9 +99,9 @@ router.get('/api/today-posts', async (req, res) => {
     const posts = await Post.find({
       timestamp: { $gte: today }
     })
-    .populate('userId', 'userName profilePicture')
-    //sort in descending order
-    .sort({ timestamp: -1 });
+      .populate('userId', 'userName profilePicture')
+      //sort in descending order
+      .sort({ timestamp: -1 });
 
     res.json(posts);
   } catch (error) {

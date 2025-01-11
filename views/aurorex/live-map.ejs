@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,78 +8,79 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="<%=GOOGLE_API_KEY%>&callback=initMap" async defer></script>
 </head>
+
 <body class="bg-gray-100">
   <%- include('../partials/header') %>
 
-  <div class="container mx-auto px-6 py-8">
-    <h1 class="text-3xl font-bold mb-6">Live Aurora Post Map</h1>
-    <div id="map" class="w-full h-[600px] rounded-lg shadow-lg mb-4"></div>
-    <div id="legend" class="bg-white p-4 rounded-lg shadow">
-      <h3 class="font-semibold mb-2">Today's Aurora Posts: <span id="postCount">0</span></h3>
+    <div class="container mx-auto px-6 py-8">
+      <h1 class="text-3xl font-bold mb-6">Live Aurora Post Map</h1>
+      <div id="map" class="w-full h-[600px] rounded-lg shadow-lg mb-4"></div>
+      <div id="legend" class="bg-white p-4 rounded-lg shadow">
+        <h3 class="font-semibold mb-2">Today's Aurora Posts: <span id="postCount">0</span></h3>
+      </div>
     </div>
-  </div>
 
-  <script>
-    let map;
-    let markers = [];
-    //create map
-    async function initMap() {
-      map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 60, lng: 15 },
-        zoom: 4,
-        mapId: 'YOUR_MAP_ID',
-        styles: [
-          {elementType: "geometry", stylers: [{color: "#242f3e"}]},
-          {elementType: "labels.text.stroke", stylers: [{color: "#242f3e"}]},
-          {elementType: "labels.text.fill", stylers: [{color: "#746855"}]},
-          {
-            featureType: "administrative.locality",
-            elementType: "labels.text.fill",
-            stylers: [{color: "#d59563"}],
-          },
-          {
-            featureType: "water",
-            elementType: "geometry",
-            stylers: [{color: "#17263c"}],
-          },
-          {
-            featureType: "water",
-            elementType: "labels.text.fill",
-            stylers: [{color: "#515c6d"}],
-          },
-        ],
-      });
-
-      await loadPosts();
-    }
-    //load todays posts
-    async function loadPosts() {
-      try {
-        const response = await fetch('/aurorex/api/today-posts');
-        const posts = await response.json();
-        
-        document.getElementById('postCount').textContent = posts.length;
-
-        posts.forEach(post => {
-          const marker = new google.maps.Marker({
-            position: { 
-              lat: parseFloat(post.location.latitude), 
-              lng: parseFloat(post.location.longitude) 
+    <script>
+      let map;
+      let markers = [];
+      //create map
+      async function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: { lat: 60, lng: 15 },
+          zoom: 4,
+          mapId: 'YOUR_MAP_ID',
+          styles: [
+            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+            {
+              featureType: "administrative.locality",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#d59563" }],
             },
-            map: map,
-            title: post.userId.userName,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: '#C34747',
-              fillOpacity: 0.8,
-              strokeWeight: 2,
-              strokeColor: '#fff',
-              scale: 8
-            }
-          });
-         //show the post when click on mark
-          const infowindow = new google.maps.InfoWindow({
-            content: `
+            {
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [{ color: "#17263c" }],
+            },
+            {
+              featureType: "water",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#515c6d" }],
+            },
+          ],
+        });
+
+        await loadPosts();
+      }
+      //load todays posts
+      async function loadPosts() {
+        try {
+          const response = await fetch('/aurorex/api/today-posts');
+          const posts = await response.json();
+
+          document.getElementById('postCount').textContent = posts.length;
+
+          posts.forEach(post => {
+            const marker = new google.maps.Marker({
+              position: {
+                lat: parseFloat(post.location.latitude),
+                lng: parseFloat(post.location.longitude)
+              },
+              map: map,
+              title: post.userId.userName,
+              icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                fillColor: '#C34747',
+                fillOpacity: 0.8,
+                strokeWeight: 2,
+                strokeColor: '#fff',
+                scale: 8
+              }
+            });
+            //show the post when click on mark
+            const infowindow = new google.maps.InfoWindow({
+              content: `
               <div class="max-w-sm">
                 <img src="${post.imageUrl}" alt="Aurora" class="w-full h-48 object-cover">
                 <div class="p-2">
@@ -88,18 +90,19 @@
                 </div>
               </div>
             `
-          });
+            });
 
-          marker.addListener('click', () => {
-            infowindow.open(map, marker);
-          });
+            marker.addListener('click', () => {
+              infowindow.open(map, marker);
+            });
 
-          markers.push(marker);
-        });
-      } catch (error) {
-        console.error('Error loading posts:', error);
+            markers.push(marker);
+          });
+        } catch (error) {
+          console.error('Error loading posts:', error);
+        }
       }
-    }
-  </script>
+    </script>
 </body>
+
 </html>

@@ -22,39 +22,39 @@ class NotificationService {
     const R = 6371; //radius of earth
     const dLat = (lat2 - lat1) * Math.PI / 180; //latitude difference to radians
     const dLon = (lon2 - lon1) * Math.PI / 180; //longtitude difference to radians
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2); //the haversine formula
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); // angular distance in radians
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2); //the haversine formula
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // angular distance in radians
     return R * c; //distance in kilometers 
   }
   //find a user within a specific range of given location
   async findUsersInRange(latitude, longitude) {
     try {
       //fetching users with existing location and notification ON
-        const users = await User.find({
-            location: { $exists: true },
-            'location.latitude': { $exists: true },
-            'location.longitude': { $exists: true },
-            notificationsEnabled: true 
-        });
+      const users = await User.find({
+        location: { $exists: true },
+        'location.latitude': { $exists: true },
+        'location.longitude': { $exists: true },
+        notificationsEnabled: true
+      });
 
-        //filtering users using previous method based on if they are in the alert radius
-        return users.filter(user => {
-            if (!user.location || !user.alertRadius) return false;
-            
-            const distance = this.calculateDistance(
-                user.location.latitude,
-                user.location.longitude,
-                latitude,
-                longitude
-            );
+      //filtering users using previous method based on if they are in the alert radius
+      return users.filter(user => {
+        if (!user.location || !user.alertRadius) return false;
 
-            return distance <= user.alertRadius; //check if the distance is within alert radius
-        });
+        const distance = this.calculateDistance(
+          user.location.latitude,
+          user.location.longitude,
+          latitude,
+          longitude
+        );
+
+        return distance <= user.alertRadius; //check if the distance is within alert radius
+      });
     } catch (error) {
-        console.error('Error finding users in range:', error);
-        return [];
+      console.error('Error finding users in range:', error);
+      return [];
     }
-}
+  }
   //sending email alerts to users 
   async sendAuroraAlert(user, postData) {
     const mailOptions = {

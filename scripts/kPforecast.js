@@ -154,7 +154,7 @@ function renderChart2(timeKpMap2) {
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowDate = tomorrow.toLocaleDateString('cs-CZ', { 
+  const tomorrowDate = tomorrow.toLocaleDateString('cs-CZ', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'

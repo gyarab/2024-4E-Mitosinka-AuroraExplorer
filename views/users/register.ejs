@@ -85,35 +85,35 @@
     }
 
     try {
-        const response = await fetch('/users/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            email,
-            password,
-            userName
-          })
-        });
+      const response = await fetch('/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          userName
+        })
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (!response.ok) {
-          // show error message from server
-          errorMessage.textContent = data.message || "Registration failed";
-          errorContainer.classList.remove('hidden');
-          return;
-        }
-
-        //redirect to login
-        window.location.href = '/users/login';
-
-      } catch (error) {
-        errorMessage.textContent = "An error occurred during registration. Please try again.";
+      if (!response.ok) {
+        // show error message from server
+        errorMessage.textContent = data.message || "Registration failed";
         errorContainer.classList.remove('hidden');
+        return;
       }
-    });
+
+      //redirect to login
+      window.location.href = '/users/login';
+
+    } catch (error) {
+      errorMessage.textContent = "An error occurred during registration. Please try again.";
+      errorContainer.classList.remove('hidden');
+    }
+  });
 </script>
 
 </html>

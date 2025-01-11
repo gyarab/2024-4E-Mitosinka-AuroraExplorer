@@ -11,7 +11,7 @@ exports.register = async (req, res) => {
     // check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         //error message to display if email exists already
         message: "Email is already registered. Please use a different email address."
       });
@@ -19,7 +19,7 @@ exports.register = async (req, res) => {
 
     // create new user
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({email, password: hashedPassword ,userName });
+    const user = new User({ email, password: hashedPassword, userName });
 
     await user.save();
 
@@ -40,12 +40,12 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
     //create JWT with user detail and secret key
     const accessToken = jwt.sign(
@@ -63,17 +63,17 @@ exports.login = async (req, res) => {
 
 exports.updateLocation = async (req, res) => {
   try {
-      const { latitude, longitude, alertRadius } = req.body;
-      const userId = req.user.id;
+    const { latitude, longitude, alertRadius } = req.body;
+    const userId = req.user.id;
 
-      await User.findByIdAndUpdate(userId, {
-          location: { latitude, longitude },
-          alertRadius
-      });
+    await User.findByIdAndUpdate(userId, {
+      location: { latitude, longitude },
+      alertRadius
+    });
 
-      res.status(200).json({ message: 'Location updated' });
+    res.status(200).json({ message: 'Location updated' });
   } catch (error) {
-      res.status(500).json({ error: 'Error updating location' });
+    res.status(500).json({ error: 'Error updating location' });
   }
 };
 
@@ -100,7 +100,7 @@ exports.updateProfile = async (req, res) => {
     );
     res.cookie('authToken', accessToken, { httpOnly: true });
 
-    res.redirect('/users/profile/'+userId);
+    res.redirect('/users/profile/' + userId);
   } catch (error) {
     res.status(500).send('Error updating profile: ' + error.message);
   }
@@ -131,7 +131,7 @@ exports.changePassword = async (req, res) => {
     await user.save();
 
 
-    res.redirect('/users/profile/'+userId); 
+    res.redirect('/users/profile/' + userId);
   } catch (error) {
     res.status(500).send('Error changing password: ' + error.message);
   }
@@ -139,17 +139,17 @@ exports.changePassword = async (req, res) => {
 
 exports.uploadProfilePicture = async (req, res) => {
   try {
-      if (!req.file) {
-          return res.status(400).send('No file uploaded.');
-      }
-      
-      const userId = req.user.id; 
-      const filePath = `/uploads/${req.file.filename}`; 
-      //find user and update profile picture
-      await User.findByIdAndUpdate(userId, { profilePicture: filePath });
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
 
-      res.redirect('/users/profile/'+userId);
+    const userId = req.user.id;
+    const filePath = `/uploads/${req.file.filename}`;
+    //find user and update profile picture
+    await User.findByIdAndUpdate(userId, { profilePicture: filePath });
+
+    res.redirect('/users/profile/' + userId);
   } catch (error) {
-      res.status(500).send('Error uploading profile picture: ' + error.message);
+    res.status(500).send('Error uploading profile picture: ' + error.message);
   }
 };
