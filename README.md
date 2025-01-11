@@ -1,18 +1,42 @@
 # Aurora Explorer
 
-## Fully functional website where you can see, share and get information about aurora borealis
+## Platform where you can see, share and get information about aurora borealis
 
-Aurora explorer allows users to see the aurora borealis forecast aswell as share photos of aurora. One of the biggest benefits of this website is the ability to see posts made today on map, so you can look up the nearest place where aurora has been seen and posted by another user!
+Aurora Explorer is a web application designed for everyone who loves seeing the northern sky shows. It offers all real-time data needed for watching aurora and serves as a social network where users can share their aurora sightings. By putting together weather updates, KP forecasts and content made by users, Aurora Explorer creates a one of a kind website for watching and enjoying auroras.
 
-# Set up
+## Key Features
 
-1. Clone repository
+### Forecasts
+ - Real-time aurora borealis forecast data
+ - KP index prediction in 3 hour intervals
+ - Cloud coverage predictiono in 3 hour intervals
+
+### Interactive Map
+ - Live map of recent aurora sightings
+ - User-submitted photo locations
+
+### Communityt Features
+ - User ptoho sharing
+ - Comment and like option
+ - Personal aurora sighting history
+ - Email notifications for posts in user-selected area
+
+ ## Requirements
+ - Node.js
+ - MongoDB database
+ - Google Maps API link with key
+ - OpenWeatherMap API key
+ - Email credentials for notifications
+
+## Instalation
+
+1. Clone the repository
 
 ```bash
 git clone https://github.com/gyarab/2024-4E-Mitosinka-AuroraExplorer
 ```
 
-2. Go to directory
+2. Navigate to project directory
 
 ```bash
 cd 2024-4E-Mitosinka-AuroraExplorer
@@ -23,14 +47,25 @@ cd 2024-4E-Mitosinka-AuroraExplorer
 npm install
 ```
 
-4. Start server
+4. Create .env file in root directory
+```bash
+ACCESS_TOKEN_SECRET=access_token
+MONGODB_URI=mongodb_connection_string
+GOOGLE_API_KEY=google_maps_link_with_api_key
+OPENWEATHER_API_KEY=open_weather_api_key
+EMAIL_USER=email
+EMAIL_APP_PASSWORD=16_letter_generated_email_password
+WEBSITE_URL=website_url
+```
+
+5. Start server
 ```bash
 node server.js
 ```
-5. Connect to server at https://localhost:3000
+6. Connect to server at https://localhost:3000
 
 
-## Note: Some functions might be disabled due to missing database configuration, google API key and nodemailer configuration.
+
 
 
 
