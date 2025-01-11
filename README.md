@@ -16,7 +16,7 @@ Aurora Explorer is a web application designed for everyone who loves seeing the 
  - User-submitted photo locations
 
 ### Community Features
- - User ptoho sharing
+ - User photo sharing
  - Comment and like option
  - Personal aurora sighting history
  - Email notifications for posts in user-selected area
