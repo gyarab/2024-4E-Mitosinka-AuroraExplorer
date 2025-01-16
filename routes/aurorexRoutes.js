@@ -8,24 +8,41 @@ const { createPost, addComment, toggleLike } = require('../controllers/postContr
 
 
 router.get('/', async (req, res) => {
-  if (req.user) {
-    try {
-      // fetch all posts, populate user and comments data, and sort by time from newest
-      const posts = await Post.find()
-        .populate('userId', 'userName profilePicture')
-        .populate('comments.userId', 'userName profilePicture')
-        .sort({ timestamp: -1 });
-      //render homepage with posts and google API KEY for showing location
-      res.render('aurorex/index', { posts, GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
-    } catch (error) {
-      res.status(500).send('Error fetching posts: ' + error.message);
-    }
-  } else {
-    res.render('users/login')
-  }
+  if (!req.user) return res.render('users/login');
+  res.render('aurorex/index', { 
+    posts: [], // Initial empty array, posts will be loaded via API
+    user: req.user,
+    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY 
+  });
 });
 
+router.get('/api/posts', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
 
+    // Fetch paginated posts
+    const posts = await Post.find()
+      .populate('userId', 'userName profilePicture')
+      .populate('comments.userId', 'userName profilePicture')
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Get total count for pagination
+    const total = await Post.countDocuments();
+    
+    res.json({
+      posts,
+      hasMore: total > skip + posts.length,
+      total
+    });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ error: 'Error fetching posts' });
+  }
+});
 
 
 

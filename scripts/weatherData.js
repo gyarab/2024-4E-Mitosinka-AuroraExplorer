@@ -30,9 +30,7 @@ function updateWeatherDisplay(currentWeather, forecastElement, currentElement) {
   if (!currentElement || !forecastElement) return;
   //current weather status display
   currentElement.innerHTML = `
-  <div class="rounded-lg p-6">
-    <h3 class="text-xl md:text-2xl font-bold mb-4 text-center text-gray-300">Current Local Weather</h3>
-    <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center rounded-lg p-6">
       <img
         src="https://openweathermap.org/img/wn/${currentWeather.icon}@2x.png"
         alt="Weather icon"
@@ -45,7 +43,6 @@ function updateWeatherDisplay(currentWeather, forecastElement, currentElement) {
         <p>Humidity: ${currentWeather.humidity}%</p>
         <p>Wind: ${currentWeather.windSpeed} km/h</p>
       </div>
-    </div>
   </div>
 `;
 
@@ -53,9 +50,9 @@ function updateWeatherDisplay(currentWeather, forecastElement, currentElement) {
 
   currentWeather.forecast.forEach((item, i) => {
     const forecast = document.createElement('div');
-    forecast.className = 'text-center';
+    forecast.className = 'text-center flex flex-col items-center justify-center';
     forecast.innerHTML = `
-    <div class=" rounded-lg p-2">
+    <div class="flex flex-col items-center rounded-lg p-2 ">
       <p class="text-sm text-gray-300 font-medium mb-1">+${(i + 1) * 6}h</p>
       <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png"
            alt="Weather icon"

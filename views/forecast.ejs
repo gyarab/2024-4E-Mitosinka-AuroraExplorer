@@ -1,156 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Forecast</title>
-  <link rel="stylesheet" href="/css/style.css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Forecast</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
-  <div class="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
-    <%- include('partials/header') %>
-  </div>
-
-    <div class="min-h-screen bg-gray-800 flex flex-col items-center justify-center text-white pt-16">
-      <main class="container mx-auto p-4 md:w-4/5 w-full">
-        <h2 class="hidden md:block text-4xl md:text-6xl font-bold mb-4 text-gray-300 text-center">Aurora Forecast</h2>
-
-        <div class="flex flex-col items-center justify-center space-y-6">
-          <!--kKp index charts -->
-          <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 sm:px-6">
-            <!-- kp index chart today -->
-            <div class="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 relative">
-              <h3 class="text-xl sm:text-2xl font-bold text-center text-white mb-4 text-gray-300">Kp Index Forecast
-                Today</h3>
-              <div class="flex justify-center items-center bg-gray-700 p-2 sm:p-4 rounded-lg shadow-inner">
-                <canvas id="kpChart1" class="w-full h-48 sm:h-56 lg:h-64"></canvas>
-              </div>
-            </div>
-
-            <!-- kp index chart tomorrow -->
-            <div class="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 relative">
-              <h3 class="text-xl sm:text-2xl font-bold text-center text-white mb-4 text-gray-300">Kp Index Forecast
-                Tomorrow</h3>
-              <div class="flex justify-center items-center bg-gray-700 p-2 sm:p-4 rounded-lg shadow-inner">
-                <canvas id="kpChart2" class="w-full h-48 sm:h-56 lg:h-64"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div id="current-weather" class="bg-gray-800 shadow-lg rounded-lg p-6"></div>
-          <div class="shadow-lg bg-gray-800 rounded-lg p-6">
-            <h3 class="text-2xl font-bold mb-4 text-gray-300 text-center">Local Cloud Forecast</h3>
-            <div id="forecast-weather" class="flex justify-between"></div>
-          </div>
-        </div>
-        <div id="weather-error" class="text-red-400 text-center mt-4"></div>
-
-
-        <div class="flex flex-col items-center justify-center space-y-6">
-          <!-- aurora maps -->
-          <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- current aurora map -->
-            <div class="bg-gray-800 rounded shadow-lg p-4 md:p-6">
-              <h3 class="text-xl md:text-2xl font-bold mb-2 text-gray-300 text-center">Current Aurora Map</h3>
-              <div class="overflow-hidden rounded-lg shadow-md max-w-full aspect-[1/1] md:h-[712px] mx-auto relative">
-                <img id="aurora-map-forecast1"
-                  src="https://services.swpc.noaa.gov/images/animations/ovation/north/latest.jpg" alt="Aurora Forecast"
-                  class="absolute inset-0 w-full h-full object-contain">
-                <div class="absolute top-2 right-2 group">
-                  <div
-                    class="w-6 h-6 bg-gray-700 text-white text-center font-bold rounded-full flex items-center justify-center cursor-pointer">
-                    i
-                  </div>
-                  <div
-                    class="absolute hidden group-hover:flex bg-gray-800 text-white text-sm rounded-md px-3 py-2 w-52 top-full mt-2 right-0 shadow-lg transition-opacity duration-200 z-10">
-                    <span>Source: </span>
-                    <a href="https://services.swpc.noaa.gov/images/animations/ovation/north/latest.jpg"
-                      class="underline text-blue-400 ml-1" target="_blank">
-                      NOAA Aurora Dashboard
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- tomorrow next aurora map -->
-            <div class="bg-gray-800 rounded shadow-lg p-4 md:p-6">
-              <h3 class="text-xl md:text-2xl font-bold mb-2 text-gray-300 text-center">Tomorrow's Aurora Map</h3>
-              <div class="overflow-hidden rounded-lg shadow-md max-w-full aspect-[1/1] md:h-[712px] mx-auto relative">
-                <img id="aurora-map-forecast2"
-                  src="https://services.swpc.noaa.gov/experimental/images/aurora_dashboard/tomorrow_nights_static_viewline_forecast.png"
-                  alt="Aurora Forecast" class="absolute inset-0 w-full h-full object-contain">
-                <div class="absolute top-2 right-2 group">
-                  <div
-                    class="w-6 h-6 bg-gray-700 text-white text-center font-bold rounded-full flex items-center justify-center cursor-pointer">
-                    i
-                  </div>
-                  <div
-                    class="absolute hidden group-hover:flex bg-gray-800 text-white text-sm rounded-md px-3 py-2 w-52 top-full mt-2 right-0 shadow-lg transition-opacity duration-200 z-10">
-                    <span>Source: </span>
-                    <a href="https://services.swpc.noaa.gov/experimental/images/aurora_dashboard/tomorrow_nights_static_viewline_forecast.png"
-                      class="underline text-blue-400 ml-1" target="_blank">
-                      NOAA Aurora Dashboard
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-    </div>
+<body class="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen">
+    <div class="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-sm border-b border-gray-700">
+        <%- include('partials/header') %>
     </div>
 
+    <main class="container mx-auto px-4 pt-24 pb-12">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-blue-400 to-purple-500 mb-4">
+                Aurora Forecast
+            </h1>
+            <p class="text-gray-400 text-lg md:text-xl">Track and predict Aurora's activity in real-time</p>
+        </div>
+
+        <!-- Current Status Card -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+                <h3 class="text-2xl font-bold mb-4 text-gray-200 text-center">Current Local Weather</h3>
+                <div id="current-weather" class="space-y-4"></div>
+            </div>
+            <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+                <h3 class="text-2xl font-bold mb-4 text-gray-200 text-center">Cloud Coverage</h3>
+                <div id="forecast-weather" class="grid grid-cols-4 gap-4 justify-items-center"></div>
+            </div>
+        </div>
+
+        <!-- Kp Index Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+                <h3 class="text-2xl font-bold mb-6 text-gray-200 text-center">Today's Kp Index Forecast</h3>
+                <div class="bg-gray-900/50 rounded-xl p-4">
+                    <canvas id="kpChart1" class="w-full h-64"></canvas>
+                </div>
+            </div>
+            <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+                <h3 class="text-2xl font-bold mb-6 text-gray-200 text-center">Tomorrow's Kp Index Forecast</h3>
+                <div class="bg-gray-900/50 rounded-xl p-4">
+                    <canvas id="kpChart2" class="w-full h-64"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aurora Maps -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-200">Current Aurora Map</h3>
+                    <div class="group relative">
+                        <button class="p-2 rounded-full bg-gray-700/50 hover:bg-gray-700 transition-colors">
+                            <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        <div class="absolute hidden group-hover:block right-0 w-64 p-4 mt-2 bg-gray-800 rounded-xl shadow-lg border border-gray-700 z-10">
+                            <p class="text-sm text-gray-300">Source: 
+                                <a href="https://services.swpc.noaa.gov/images/animations/ovation/north/latest.jpg" 
+                                   class="text-blue-400 hover:underline" target="_blank">NOAA Aurora Dashboard</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative aspect-square overflow-hidden rounded-xl border border-gray-700/50">
+                    <img id="aurora-map-forecast1" 
+                         src="https://services.swpc.noaa.gov/images/animations/ovation/north/latest.jpg" 
+                         alt="Current Aurora Map"
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+            </div>
+
+            <div class="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-200">Tomorrow's Aurora Map</h3>
+                    <div class="group relative">
+                        <button class="p-2 rounded-full bg-gray-700/50 hover:bg-gray-700 transition-colors">
+                            <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        <div class="absolute hidden group-hover:block right-0 w-64 p-4 mt-2 bg-gray-800 rounded-xl shadow-lg border border-gray-700 z-10">
+                            <p class="text-sm text-gray-300">Source: 
+                                <a href="https://services.swpc.noaa.gov/experimental/images/aurora_dashboard/tomorrow_nights_static_viewline_forecast.png" 
+                                   class="text-blue-400 hover:underline" target="_blank">NOAA Aurora Dashboard</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative aspect-square overflow-hidden rounded-xl border border-gray-700/50">
+                    <img id="aurora-map-forecast2" 
+                         src="https://services.swpc.noaa.gov/experimental/images/aurora_dashboard/tomorrow_nights_static_viewline_forecast.png" 
+                         alt="Tomorrow's Aurora Map"
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="weather-error" class="mt-8 text-center text-red-400"></div>
     </main>
-    </div>
-
 
     <script type="module" src="/scripts/weatherData.js"></script>
     <script type="module" src="/scripts/kPforecast.js"></script>
     <script>
-      //load scripts
-      document.addEventListener('DOMContentLoaded', () => {
-        if (window.initWeatherTracking) {
-          window.initWeatherTracking();
-        }
-        if (window.fetchKpForecastToday) {
-          window.fetchKpForecastToday();
-        }
-        if (window.fetchKpForecastTomorrow) {
-          window.fetchKpForecastTomorrow();
-        }
-      });
-    </script>
-    <script>
-      //automatically refresh images
-      document.addEventListener('DOMContentLoaded', () => {
-        const auroraImg = document.getElementById('aurora-map-forecast1');
-        const baseUrl = "https://services.swpc.noaa.gov/images/animations/ovation/north/latest.jpg";
+        // initialize functions on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // initialize weather tracking
+            if (window.initWeatherTracking) {
+                window.initWeatherTracking();
+            }
+            
+            // initialize Kp forecasts
+            if (window.fetchKpForecastToday) {
+                window.fetchKpForecastToday();
+            }
+            if (window.fetchKpForecastTomorrow) {
+                window.fetchKpForecastTomorrow();
+            }
 
-        const refreshImage = () => {
-          auroraImg.src = `${baseUrl}?timestamp=${new Date().getTime()}`;
-        };
-        setInterval(refreshImage, 600000);
-      });
-      document.addEventListener('DOMContentLoaded', () => {
-        const auroraImg = document.getElementById('aurora-map-forecast2');
-        const baseUrl = "https://services.swpc.noaa.gov/experimental/images/aurora_dashboard/tomorrow_nights_static_viewline_forecast.png";
+            // setup automatic image refresh
+            const refreshImages = () => {
+                const timestamp = new Date().getTime();
+                
+                // refresh current map
+                const currentMap = document.getElementById('aurora-map-forecast1');
+                currentMap.src = `https://services.swpc.noaa.gov/images/animations/ovation/north/latest.jpg?timestamp=${timestamp}`;
+                
+                // refresh tomorrow map
+                const tomorrowMap = document.getElementById('aurora-map-forecast2');
+                tomorrowMap.src = `https://services.swpc.noaa.gov/experimental/images/aurora_dashboard/tomorrow_nights_static_viewline_forecast.png?timestamp=${timestamp}`;
+            };
 
-        const refreshImage = () => {
-          auroraImg.src = `${baseUrl}?timestamp=${new Date().getTime()}`;
-        };
-        setInterval(refreshImage, 600000);
-      });
-
+            // refresh images every 10 minutes
+            setInterval(refreshImages, 600000);
+        });
     </script>
 </body>
-
 </html>
