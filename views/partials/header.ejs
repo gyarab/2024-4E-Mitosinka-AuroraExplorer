@@ -14,9 +14,9 @@
       <div id="menu" class="hidden md:flex space-x-6 items-center">
         <a href="/" class="text-white hover:text-gray-400">Home</a>
         <a href="/forecast" class="text-white hover:text-gray-400">Forecast</a>
-        <a href="/guide" class="text-white hover:text-gray-400">Guide</a>
         <a href="/aurorex" class="text-white hover:text-gray-400">Aurorex</a>
         <a href="/aurorex/live-map" class="text-white hover:text-gray-400">Live Map</a>
+        <a href="/guide" class="text-white hover:text-gray-400">Guide</a>
         <% if (user) { %>
           <a href="/users/profile/<%= user._id %>" class="flex items-center">
             <img src="<%= user.profilePicture %>" alt="Profile"
@@ -42,7 +42,6 @@
             <% } %>
               <a href="/" class="block text-white px-4 py-2 hover:bg-gray-900">Home</a>
               <a href="/forecast" class="block text-white px-4 py-2 hover:bg-gray-700">Forecast</a>
-              <a href="/gallery" class="block text-white px-4 py-2 hover:bg-gray-700">Gallery</a>
               <a href="/guide" class="block text-white px-4 py-2 hover:bg-gray-700">Guide</a>
               <a href="/aurorex" class="block text-white px-4 py-2 hover:bg-gray-700">Aurorex</a>
               <a href="/aurorex/live-map" class="block text-white px-4 py-2 hover:bg-gray-700">Live Map</a>
