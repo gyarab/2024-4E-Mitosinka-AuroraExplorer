@@ -9,6 +9,21 @@ router.get('/forecast', (req, res) => {
   res.render('forecast');
 });
 
+router.post('/update-kp-data', async (req, res) => {
+  try {
+    const { kpData } = req.body;
+    console.log('Received KP data:', kpData);
+    
+    const kpNotificationService = require('../services/kpNotificationService');
+    await kpNotificationService.checkAndNotifyUsers(kpData);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error handling KP data:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/guide', (req, res) => {
   res.render('guide');
 });

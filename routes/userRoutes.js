@@ -78,6 +78,18 @@ router.post('/toggle-notifications', async (req, res) => {
   }
 })
 
+router.post('/toggle-kp-notifications', async (req, res) => {
+  try {
+      const user = await User.findById(req.user._id);
+      user.notificationsForHighKp = !user.notificationsForHighKp;
+      await user.save();
+      res.json({ success: true });
+  } catch (error) {
+      console.error('Error toggling KP notifications:', error);
+      res.status(500).json({ error: 'Failed to update notification settings' });
+  }
+});
+
 //render 404.ejs page for all unknown routes
 router.get('*/', (req, res) => {
   res.status(404).render('404');

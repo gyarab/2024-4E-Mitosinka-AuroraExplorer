@@ -10,18 +10,9 @@ const userSchema = new Schema({
     profilePicture: { type: String, default: '/uploads/default-profile-picture.jpg' },
     location: { latitude: Number, longitude: Number },
     alertRadius: { type: Number, default: 50 },
-    notificationsEnabled: { type: Boolean, default: true }
+    notificationsEnabled: { type: Boolean, default: true },
+    notificationsForHighKp: {type: Boolean, default: true}
 });
-
-/*userSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString(),
-            delete returnedObject._id;
-        delete returnedObject._v;
-        delete returnedObject.password;
-
-    },
-});*/
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

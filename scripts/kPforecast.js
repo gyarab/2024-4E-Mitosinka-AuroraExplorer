@@ -29,6 +29,7 @@ async function fetchKpForecastTomorrow() {
   }
 }
 
+//fetch data from NOAAs
 async function fetchKpForecastToday() {
   try {
     const response = await fetch('https://services.swpc.noaa.gov/text/3-day-forecast.txt');
@@ -41,13 +42,28 @@ async function fetchKpForecastToday() {
 
     for (const line of lines) {
       if (line.includes('NOAA Kp index breakdown')) continue;
-      const match = line.match(/(\d{2}-\d{2}UT)\s+([\d.]+)/);//match  time and kp value
+      const match = line.match(/(\d{2}-\d{2}UT)\s+([\d.]+)/);
       if (match) {
         const time = match[1].trim();
         const kpIndex = Math.round(parseFloat(match[2].trim()));
-        timeKpMap1[time.slice(0, -2)] = kpIndex; //map time to kp index
+        timeKpMap1[time.slice(0, -2)] = kpIndex;
       }
     }
+
+    // send data to server for notification processing
+    try {
+      const notificationResponse = await fetch('/update-kp-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ kpData: timeKpMap1 })
+      });
+      console.log('KP notification response:', await notificationResponse.json());
+    } catch (error) {
+      console.error('Error sending KP data to server:', error);
+    }
+
     renderChart1(timeKpMap1);
   } catch (error) {
     console.error('Error fetching todays Kp forecast data:', error);
@@ -224,6 +240,7 @@ function renderChart2(timeKpMap2) {
     }
   });
 }
+
 //expose fetch functions to window object and export for use
 window.fetchKpForecastToday = fetchKpForecastToday;
 window.fetchKpForecastTomorrow = fetchKpForecastTomorrow;

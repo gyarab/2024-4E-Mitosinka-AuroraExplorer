@@ -10,15 +10,15 @@
   <script src="<%=GOOGLE_API_KEY%>&libraries=places"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
-  <div class="container mx-auto p-6 max-w-4xl">
-    <div class="bg-white rounded-lg shadow-lg p-8">
-      <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Share Your Aurora Sighting</h1>
+<body class="bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 min-h-screen">
+  <div class="container mx-auto p-6  max-w-4xl">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center text-white">Share Your Aurora Sighting</h1>
 
       <form id="auroraForm" action="/aurorex/add" method="POST" enctype="multipart/form-data">
         <!-- image-->
         <div class="mb-8">
-          <label class="block text-gray-700 text-lg font-semibold mb-2">Upload Image</label>
+          <label class="block text-white text-lg font-semibold mb-2">Upload Image</label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             <input type="file" id="image" name="image" class="hidden" required>
             <label for="image" class="cursor-pointer">
@@ -27,7 +27,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <span class="text-sm">Click to upload or drag and drop</span>
+                <span class="text-sm text-white">Click to upload or drag and drop</span>
               </div>
             </label>
           </div>
@@ -35,9 +35,9 @@
 
         <!--location -->
         <div class="mb-6">
-          <label class="block text-gray-700 text-lg font-semibold mb-2">Location</label>
+          <label class="block text-white text-lg font-semibold mb-2">Location</label>
           <input type="text" id="location-input"
-            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full bg-gray-800 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Search for a location or click on the map">
         </div>
 
@@ -51,9 +51,9 @@
 
         <!-- description -->
         <div class="mb-8">
-          <label class="block text-gray-700 text-lg font-semibold mb-2">Description</label>
+          <label class="block text-white text-lg font-semibold mb-2">Description</label>
           <textarea id="description" name="description" rows="4"
-            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full bg-gray-800 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Share your experience..."></textarea>
         </div>
 

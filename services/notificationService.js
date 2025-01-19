@@ -22,7 +22,7 @@ class NotificationService {
     const R = 6371; //radius of earth
     const dLat = (lat2 - lat1) * Math.PI / 180; //latitude difference to radians
     const dLon = (lon2 - lon1) * Math.PI / 180; //longtitude difference to radians
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2); //the haversine formula
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2); //the Haversine formula
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // angular distance in radians
     return R * c; //distance in kilometers 
   }
