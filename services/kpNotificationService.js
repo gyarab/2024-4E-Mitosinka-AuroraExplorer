@@ -89,14 +89,12 @@ class KpNotificationService {
 
     //check kp values and send notifications
     async checkAndNotifyUsers(kpData) {
-        console.log('Checking KP data:', kpData);
         //send emails for values higher than 5
         const hasHighKp = Object.values(kpData).some(value => value >= 5);
-        console.log('Has high KP?', hasHighKp);
 
         //if no kp index higher than 5, donto send emails
         if (!hasHighKp) {
-            console.log('No high KP values found');
+            console.log('No higher than 5 KP values found');
             return;
         }
 

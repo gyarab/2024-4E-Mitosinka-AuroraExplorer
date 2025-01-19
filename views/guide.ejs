@@ -3,26 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guide</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <title>Aurora Borealis Guide</title>
+    <link rel="stylesheet" href="/css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-gray-900 text-gray-100 font-sans">
 
-<body class="bg-gray-800">
-  
   <%- include('partials/header') %>
-
-      <section class="bg-cover bg-center h-60 flex items-center justify-center ">
-        <h1 class="text-3xl md:text-6xl text-white font-bold text-center">Aurora Guide</h1>
-      </section>
-
-      <section class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
+    <!-- Hero Section -->
+    <div class="relative bg-gray-800 h-96">
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-green-400/30 to-purple-500/30 mix-blend-multiply"></div>
+            <img src="/images/guideBg.jpg" class="w-full h-full object-cover object-center"/>
         </div>
+        <div class="relative h-full flex items-center justify-center">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">Aurora Borealis Guide</h1>
+                <p class="text-xl text-gray-200">Your complete guide to witnessing nature's light show</p>
+            </div>
+        </div>
+    </div>
 
-      </section>
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-12">
+        <!-- Best Locations -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-green-400">Best Viewing Locations</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-800 rounded-lg p-6 shadow-lg transform hover:scale-105 transition duration-300">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-400">Iceland</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Thingvellir National Park
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Jokulsarlon Glacier Lagoon
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Best from September to March
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-lg p-6 shadow-lg transform hover:scale-105 transition duration-300">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-400">Norway</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Tromsø
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Lofoten Islands
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Peak season: October-March
+                        </li>
+                    </ul>
+                </div>
 
+                <div class="bg-gray-800 rounded-lg p-6 shadow-lg transform hover:scale-105 transition duration-300">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-400">Finland</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Rovaniemi
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Finnish Lapland
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Viewing: August-April
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Optimal Timing -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-green-400">When to Watch</h2>
+            <div class="bg-gray-800 rounded-lg p-8 shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-purple-400">Best Times</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-center">
+                                <span class="w-24 text-gray-400">Season:</span>
+                                <span>September - March</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-24 text-gray-400">Hours:</span>
+                                <span>10 PM - 3 AM</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-24 text-gray-400">Moon:</span>
+                                <span>New moon preferred</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-purple-400">Conditions</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-center">
+                                <span class="w-24 text-gray-400">Weather:</span>
+                                <span>Clear skies required</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-24 text-gray-400">KP Index:</span>
+                                <span>The higher the better (3+)</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-24 text-gray-400">Location:</span>
+                                <span>Avoid light pollution, away from city lights</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Photography Tips -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-green-400">Photography Guide</h2>
+            <div class="bg-gray-800 rounded-lg p-8 shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-purple-400">Camera Settings</h3>
+                        <ul class="space-y-2">
+                            <li>• Manual mode</li>
+                            <li>• ISO: 800-6400 depending on the scenery brightness</li>
+                            <li>• Aperture: f/1.4 to f/2.8</li>
+                            <li>• Shutter: 4-30 seconds</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-purple-400">Useful Gear</h3>
+                        <ul class="space-y-2">
+                            <li>• Sturdy tripod</li>
+                            <li>• Wide-angle lens</li>
+                            <li>• Extra batteries</li>
+                            <li>• Remote shutter</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-purple-400">Pro Tips</h3>
+                        <ul class="space-y-2">
+                            <li>• Focus manually to infinity</li>
+                            <li>• Shoot in RAW format</li>
+                            <li>• Check histograms</li>
+                            <li>• Use lens heaters</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Essential Preparation -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-green-400">Essential Preparation</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-400">What to Bring</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Warm cloths
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Hot drinks 
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Red light headlamp, so the light pollution is low
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Power banks, it might take a lot of time to get some pictures
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-400">Planning</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Check aurora forecasts
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Monitor weather conditions
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Scout locations in daylight
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">•</span>
+                            Go with friends
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
 </body>
 </html>
