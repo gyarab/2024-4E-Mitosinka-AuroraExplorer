@@ -9,40 +9,105 @@ const { createPost, addComment, toggleLike } = require('../controllers/postContr
 
 router.get('/', async (req, res) => {
   if (!req.user) return res.render('users/login');
-  res.render('aurorex/index', { 
-    posts: [], // Initial empty array, posts will be loaded via API
+  res.render('aurorex/index', {
+    posts: [], // initial empty array, posts will be loaded via API (/api/posts)
     user: req.user,
-    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY 
+    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY
   });
 });
 
+
+
+
+
 router.get('/api/posts', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
-    const skip = (page - 1) * limit;
+    const page = parseInt(req.query.page) || 1; //current page number, default 1
+    const limit = parseInt(req.query.limit) || 6; //post limit per page, default 6
+    const filter = req.query.filter || 'newest'; //sorting, default sort by newest
+    const skip = (page - 1) * limit; //calculate how many posts to skip based on current page
 
-    // Fetch paginated posts
-    const posts = await Post.find()
-      .populate('userId', 'userName profilePicture')
-      .populate('comments.userId', 'userName profilePicture')
-      .sort({ timestamp: -1 })
-      .skip(skip)
-      .limit(limit);
+    // create aggregation pipeline for proper sorting
+    const aggregationPipeline = [
+      // join posts collec. with users collec.
+      {
+        $lookup: {
+          from: 'users', //collec. to join with
+          localField: 'userId', //userId in posts collection to match
+          foreignField: '_id', //match with _id in users collection
+          as: 'userInfo' //store user info in userInfo arr
+        }
+      },
+      //convert userInfo array to a single object
+      {
+        $unwind: '$userInfo'
+      },
+      // add calculated fields
+      {
+        $addFields: {
+          //calculates number of likes/comments for each post
+          likesCount: { $size: '$likes' },
+          commentsCount: { $size: '$comments' }
+        }
+      }
+    ];
+    // add sorting based on filter
+    let sort = {};
+    switch (filter) {
+      case 'mostLikes':
+        sort = { $sort: { likesCount: -1, timestamp: -1 } };
+        break;
+      case 'mostComments':
+        sort = { $sort: { commentsCount: -1, timestamp: -1 } };
+        break;
+      case 'newest':
+      default:
+        sort = { $sort: { timestamp: -1 } };
+        break;
+    }
+    //add sorting stage to aggregation pipeline before pagination so the posts are all sorted, just not displayed 
+    aggregationPipeline.push(sort);
 
-    // Get total count for pagination
-    const total = await Post.countDocuments();
-    
-    res.json({
-      posts,
-      hasMore: total > skip + posts.length,
-      total
+    // add pagination
+    aggregationPipeline.push(
+      { $skip: skip }, //skip posts from previous page
+      { $limit: limit } //limit of posts per page
+    );
+
+    // execute aggregation pipeline
+    const posts = await Post.aggregate(aggregationPipeline);
+
+    // populate comments user info
+    await Post.populate(posts, {
+      path: 'comments.userId',
+      select: 'userName profilePicture' //select only necessary fields for comments
     });
+
+    // get total posts count
+    const totalPosts = await Post.countDocuments();
+
+    // check if there are more posts to load
+    const hasMore = skip + posts.length < totalPosts;
+
+    // format the posts to match frontend structure
+    const formattedPosts = posts.map(post => ({
+      ...post, // spread all original post properties
+      userId: { //restructure userId to match frontend format
+        _id: post.userInfo._id,
+        userName: post.userInfo.userName,
+        profilePicture: post.userInfo.profilePicture
+      }
+    }));
+
+    //send formatted posts and pagination info as json
+    res.json({ posts: formattedPosts, hasMore });
   } catch (error) {
     console.error('Error fetching posts:', error);
-    res.status(500).json({ error: 'Error fetching posts' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 
 
@@ -53,6 +118,8 @@ router.get('/post', (req, res) => {
     res.render('users/login')
   }
 });
+
+
 
 
 
@@ -102,22 +169,43 @@ router.delete('/:postId/comment/:commentId/delete', async (req, res) => {
 });
 
 
+
+
+
 router.get('/live-map', (req, res) => {
   if (!req.user) return res.render('users/login');
   res.render('aurorex/live-map', { GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
 });
 
-router.get('/api/today-posts', async (req, res) => {
-  try {
-    const today = new Date();
-    today.setHours(12, 0, 0, 0);
 
-    //find post created from today onwards, populate user data
+
+
+router.get('/api/posts-by-time', async (req, res) => {
+  try {
+    const timeRange = req.query.range || 'day'; // default to day
+    const now = new Date();
+    let startDate;
+
+    // calculate start date based on time range
+    switch (timeRange) {
+      case 'day':
+        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); //now -24h
+        break;
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);//now - 7days
+        break;
+      case 'month':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); //now - 30 days
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid time range' });
+    }
+
+    // find posts within the specified time range
     const posts = await Post.find({
-      timestamp: { $gte: today }
+      timestamp: { $gte: startDate }
     })
       .populate('userId', 'userName profilePicture')
-      //sort in descending order
       .sort({ timestamp: -1 });
 
     res.json(posts);
@@ -127,8 +215,15 @@ router.get('/api/today-posts', async (req, res) => {
 });
 
 
+
+
+
 //hangle adding new post with image
 router.post('/add', upload.single('image'), createPost);
+
+
+
+
 
 //route for adding comments
 router.post('/:id/comment', async (req, res) => {
@@ -143,6 +238,10 @@ router.post('/:id/comment', async (req, res) => {
   }
 });
 
+
+
+
+
 //route for adding like
 router.post('/:id/like', async (req, res) => {
   try {
@@ -154,6 +253,10 @@ router.post('/:id/like', async (req, res) => {
     res.status(500).send('Error liking post: ' + error.message);
   }
 });
+
+
+
+
 
 //route for handling unknown routes (show 404.ejs page)
 router.get('*/', (req, res) => {

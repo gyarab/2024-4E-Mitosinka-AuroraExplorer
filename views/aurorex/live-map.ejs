@@ -21,6 +21,26 @@
       <p class="text-gray-400">Track real-time aurora photos taken by other users</p>
     </div>
 
+
+    <div class="mb-4 flex justify-end">
+      <div class="bg-gray-900/30 backdrop-blur-sm rounded-xl border border-gray-800/30 inline-flex">
+        <button onclick="loadPosts('day')"
+          class="time-range-btn px-4 py-2 text-sm font-medium text-white hover:bg-gray-800/50 rounded-l-xl"
+          data-range="day">
+          24 Hours
+        </button>
+        <button onclick="loadPosts('week')"
+          class="time-range-btn px-4 py-2 text-sm font-medium text-white hover:bg-gray-800/50" data-range="week">
+          Past Week
+        </button>
+        <button onclick="loadPosts('month')"
+          class="time-range-btn px-4 py-2 text-sm font-medium text-white hover:bg-gray-800/50 rounded-r-xl"
+          data-range="month">
+          Past Month
+        </button>
+      </div>
+    </div>
+
     <div
       class="bg-gray-900/30 backdrop-blur-sm rounded-xl border border-gray-800/30 shadow-xl shadow-gray-950/50 p-4 mb-6">
       <div id="map" class="w-full h-[600px] rounded-lg overflow-hidden"></div>
@@ -29,7 +49,7 @@
     <div class="bg-gray-900/30 backdrop-blur-sm rounded-xl border border-gray-800/30 shadow-xl shadow-gray-950/50 p-6">
       <div class="flex items-center space-x-4">
         <div class="flex-1">
-          <h3 class="text-lg font-semibold text-white mb-2">Today's Aurora Posts</h3>
+          <h3 class="text-lg font-semibold text-white mb-2">Aurora Posts</h3>
           <div class="flex items-center space-x-2">
             <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
             <span class="text-2xl font-bold text-gray-200" id="postCount">0</span>
@@ -46,52 +66,69 @@
   </div>
 
   <script>
-    let map;
-    let markers = [];
+    let map; //map for markers
+    let markers = []; //field for marks on map
 
+    //create a map to show markers on
     async function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: { lat: 60, lng: 15 },
-          zoom: 4,
-          styles: [
-            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-            {
-              featureType: "administrative.locality",
-              elementType: "labels.text.fill",
-              stylers: [{ color: "#d59563" }],
-            },
-            {
-              featureType: "water",
-              elementType: "geometry",
-              stylers: [{ color: "#17263c" }],
-            },
-            {
-              featureType: "water",
-              elementType: "labels.text.fill",
-              stylers: [{ color: "#515c6d" }],
-            },
-          ],
-        });
-        await loadPosts();
-      }
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 60, lng: 15 },
+        zoom: 4,
+        styles: [
+          { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+          {
+            featureType: "administrative.locality",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#d59563" }],
+          },
+          {
+            featureType: "water",
+            elementType: "geometry",
+            stylers: [{ color: "#17263c" }],
+          },
+          {
+            featureType: "water",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#515c6d" }],
+          },
+        ],
+      });
+      //load posts for last 24h by default
+      await loadPosts('day');
+    }
+    //function to load posts on a selected time frame, default time frame is past 24h
+    async function loadPosts(range = 'day') {
+      // clear existing markers
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
 
-    async function loadPosts() {
+      // update button styles to show active range
+      document.querySelectorAll('.time-range-btn').forEach(btn => {
+        btn.classList.remove('bg-gray-800/50');
+        if (btn.dataset.range === range) {
+          btn.classList.add('bg-gray-800/50');//add bg to button if selected
+        }
+      });
+
       try {
-        const response = await fetch('/aurorex/api/today-posts');
+        //fetch posts from api/posts-by-time
+        const response = await fetch(`/aurorex/api/posts-by-time?range=${range}`);
         const posts = await response.json();
 
         const counter = document.getElementById('postCount');
-        counter.textContent = posts.length;
+        counter.textContent = posts.length; //update postCount in html
 
+        //go through each post to create markers on map
         posts.forEach(post => {
+          //create google maps marker for post
           const marker = new google.maps.Marker({
             position: {
               lat: parseFloat(post.location.latitude),
               lng: parseFloat(post.location.longitude)
             },
-            map: map,
+            map: map, //assign marker to created google map
             title: post.userId.userName,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
@@ -103,30 +140,33 @@
             }
           });
 
+          //create info window for post information when clicked on marker
           const infowindow = new google.maps.InfoWindow({
-        content: `
-          <div class="max-w-sm bg-gray-900 rounded-lg overflow-hidden shadow-lg">
-            <img src="${post.imageUrl}" alt="Aurora" class="w-full h-48 object-cover">
-            <div class="p-4">
-              <div class="flex items-center gap-2 mb-2">
-                <img src="${post.userId.profilePicture}" 
-                  alt="${post.userId.userName}" 
-                  class="w-8 h-8 rounded-full object-cover">
-                <div>
-                  <p class="font-semibold text-white">${post.userId.userName}</p>
-                  <p class="text-xs text-gray-400">${new Date(post.timestamp).toLocaleString()}</p>
+            content: `
+              <div class="max-w-sm bg-gray-900 rounded-lg overflow-hidden shadow-lg">
+                <img src="${post.imageUrl}" alt="Aurora" class="w-full h-48 object-cover">
+                <div class="p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <img src="${post.userId.profilePicture}" 
+                      alt="${post.userId.userName}" 
+                      class="w-8 h-8 rounded-full object-cover">
+                    <div>
+                      <p class="font-semibold text-white">${post.userId.userName}</p>
+                      <p class="text-xs text-gray-400">${new Date(post.timestamp).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-300">${post.description}</p>
                 </div>
               </div>
-              <p class="text-sm text-gray-300">${post.description}</p>
-            </div>
-          </div>
-        `
-      });
+            `
+          });
 
+          //open info window when clicked on marker
           marker.addListener('click', () => {
             infowindow.open(map, marker);
           });
 
+          //add marker to markers arr 
           markers.push(marker);
         });
       } catch (error) {

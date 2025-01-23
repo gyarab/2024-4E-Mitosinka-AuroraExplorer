@@ -364,10 +364,30 @@
                     };
 
 
-            const map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 8,
+            map = new google.maps.Map(document.getElementById('map'), {
                 center: defaultLocation,
-            });
+                zoom: 6,
+                styles: [
+                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                    {
+                        featureType: "administrative.locality",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#d59563" }],
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "geometry",
+                        stylers: [{ color: "#17263c" }],
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#515c6d" }],
+                    },
+                ],
+            });;
 
             // create circle for radius
             const circle = new google.maps.Circle({

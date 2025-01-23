@@ -21,11 +21,19 @@
   <nav class="bg-gradient-to-b from-gray-800/50 to-transparent backdrop-blur-sm shadow-md border-gray-700/30 mb-6 pt-16">
     <div class="container mx-auto px-6 py-3">
       <div class="flex justify-between items-center">
-        <h1 class=" text-white text-2xl font-bold">Aurorex</h1>
+        <div class="flex items-center gap-4">
+          <h1 class="text-white text-2xl font-bold">Aurorex</h1>
+          <select id="postFilter" class="bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+            <option value="newest">Newest</option>
+            <option value="mostLikes">Most Likes</option>
+            <option value="mostComments">Most Comments</option>
+          </select>
+        </div>
         <a href="/aurorex/post" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Create Post</a>
       </div>
     </div>
   </nav>
+
 
   <div class="container mx-auto px-4 py-8 border-white">
     <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -106,6 +114,7 @@
 
     // create one post HTML 
     function createPostElement(post) {
+      const isLiked = post.likes.some(like => like.userId.toString() === user._id.toString());
       //HTML for comments
       const commentsHtml = post.comments.map(comment => {
         // get IDs, handling both string and object ID cases
@@ -178,18 +187,25 @@
             <p class="text-gray-300 mb-4">${post.description}</p>
 
             <div class="flex items-center mb-4">
-              <form action="/aurorex/${post._id}/like" method="POST" class="mr-4">
-                <button type="submit" 
-                  class="flex items-center ${post.likes.some(like => like.userId.toString() === user.id) ? 
-                    'text-blue-400 hover:text-blue-300' : 'text-gray-400 hover:text-blue-400'} transition-colors">
-                  <svg class="w-5 h-5 mr-1" fill="${post.likes.some(like => like.userId.toString() === user.id) ? 
-                    'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  ${post.likes.length}
-                </button>
-              </form>
+        <form action="/aurorex/${post._id}/like" method="POST" class="mr-4">
+
+          <button type="submit" 
+
+            class="flex items-center ${isLiked ? 'text-red-500 hover:text-red-400' : 'text-gray-400 hover:text-red-500'} transition-colors">
+
+            <svg class="w-5 h-5 mr-1" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+
+            </svg>
+
+            ${post.likes.length}
+
+          </button>
+
+        </form>
               <span class="text-gray-400">
                 <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -226,71 +242,70 @@
     let page = 1; //current page
     let loading = false; //variable to prevent multiple loadings in one time
     let hasMore = true; // variable to check if more posts are aviable
+    let currentFilter = 'newest';
     //get html elements
     const postsContainer = document.getElementById('posts-container');
     const loadingSpinner = document.getElementById('loading-spinner');
     const noPostsMessage = document.getElementById('no-posts');
-
+    const filterSelect = document.getElementById('postFilter');
     //load posts with infinite scroll
-    async function loadMorePosts() {
-      //prevent loading if loading in progress or no more posts
-      if (loading || !hasMore) return;
+    async function loadMorePosts(resetPosts = false) {
+      if (loading || (!hasMore && !resetPosts)) return;
 
-      //set loading state
+      if (resetPosts) {
+        page = 1;
+        hasMore = true;
+        postsContainer.innerHTML = '';
+      }
+
       loading = true;
       loadingSpinner.classList.remove('hidden');
+      noPostsMessage.classList.add('hidden');
 
       try {
-        //get next pack of posts
-        const response = await fetch(`/aurorex/api/posts?page=${page}&limit=6`);
+        const response = await fetch(`/aurorex/api/posts?page=${page}&limit=6&filter=${currentFilter}`);
         const data = await response.json();
 
-        //no more posts aviable
         if (data.posts.length === 0) {
           hasMore = false;
           if (page === 1) {
-            //show no posts msg if no posts on first page
             noPostsMessage.classList.remove('hidden');
           }
           loadingSpinner.classList.add('hidden');
           return;
         }
 
-        //add new posts to container
         data.posts.forEach(post => {
           const postElement = createPostElement(post);
           postsContainer.insertAdjacentHTML('beforeend', postElement);
         });
 
-        //update location for posts
         geocoder();
-        //page number and update hasMore variable
         page++;
         hasMore = data.hasMore;
       } catch (error) {
         console.error('Error loading posts:', error);
       } finally {
-        //reset loading state
         loading = false;
         loadingSpinner.classList.add('hidden');
       }
     }
 
-    // scroll handler
-    let scrollTimeout;
-    //scrp;; evemt ;ostemer
-    window.addEventListener('scroll', () => {
-      //clear any existing timeout to prevent scroll bouncing
-      clearTimeout(scrollTimeout);
+    // Filter change handler
+    filterSelect.addEventListener('change', (e) => {
+      currentFilter = e.target.value;
+      loadMorePosts(true);
+    });
 
-      //settimeout to execute after 100ms after scroll
+    // Modified scroll handler
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
-        //check if user is near bottom of page, trigger 100px before reaching bottom
         if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 100) {
-          //load more posts
           loadMorePosts();
         }
-      }, 100); //100ms delay to prevent bouncing
+      }, 100);
     });
 
     // initial load

@@ -131,7 +131,7 @@ exports.changePassword = async (req, res) => {
     await user.save();
 
 
-    res.redirect('/users/profile/' + userId);
+    res.redirect('/users/profile/' + req.user.id);
   } catch (error) {
     res.status(500).send('Error changing password: ' + error.message);
   }
