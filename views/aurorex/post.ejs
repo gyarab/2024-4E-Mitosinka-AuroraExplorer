@@ -20,7 +20,7 @@
         <div class="mb-8">
           <label class="block text-white text-lg font-semibold mb-2">Upload Image</label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <input type="file" id="image" name="image" class="hidden" required>
+            <input type="file" id="image" name="image" class="hidden" accept="image/*" required>
             <label for="image" class="cursor-pointer">
               <div class="text-gray-500">
                 <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,7 +58,7 @@
         </div>
 
         <!-- location error message -->
-        <p id="locationErrorMessage" class="text-red-500 text-sm hidden text-center mb-4"></p>
+        <p id="errorMessage" class="text-red-500 text-sm hidden text-center mb-4"></p>
 
         <!-- post button -->
         <div class="text-center">
@@ -135,7 +135,7 @@
 
       // mark location as selected and hide error message
       isLocationSelected = true;
-      document.getElementById('locationErrorMessage').classList.add('hidden');
+      document.getElementById('errorMessage').classList.add('hidden');
     }
 
     // update file input label when file selected
@@ -154,13 +154,24 @@
 
     // validate location before submiting
     document.getElementById('auroraForm').addEventListener('submit', function (e) {
-      const locationErrorMessage = document.getElementById('locationErrorMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const fileInput = document.getElementById('image');
 
+      //reset error message 
+      errorMessage.classList.add('hidden'); 
+      errorMessage.textContent = '';
+      
       // prevent submiting if no location selected
       if (!isLocationSelected) {
         e.preventDefault();
-        locationErrorMessage.textContent = 'Please select a location by clicking on the map or searching.';
-        locationErrorMessage.classList.remove('hidden');
+        errorMessage.textContent = 'Please select a location by clicking on the map or searching.';
+        errorMessage.classList.remove('hidden');
+        return; //return to prevent double message error
+      }
+      if(fileInput.files.length === 0){
+        e.preventDefault();
+        errorMessage.textContent = 'Please select a picture by click on the upload image section.';
+        errorMessage.classList.remove('hidden');
       }
     });
 
