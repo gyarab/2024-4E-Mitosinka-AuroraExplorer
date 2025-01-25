@@ -57,8 +57,8 @@
             placeholder="Share your experience..."></textarea>
         </div>
 
-        <!--error -->
-        <p id="errorMessage" class="text-red-500 text-sm hidden text-center "></p>
+        <!-- location error message -->
+        <p id="locationErrorMessage" class="text-red-500 text-sm hidden text-center mb-4"></p>
 
         <!-- post button -->
         <div class="text-center">
@@ -76,6 +76,7 @@
 
   <script>
     let map, marker;
+    let isLocationSelected = false; //global variable for checking if location is selected for error message
 
     //initialze map for selecting location
     function initMap() {
@@ -98,12 +99,12 @@
       const input = document.getElementById('location-input');
       const searchBox = new google.maps.places.SearchBox(input);
 
-      //listen for placed marker when clicked on map
+      //listen for map click to place marker
       map.addListener('click', (e) => {
         placeMarker(e.latLng);
       });
 
-      //listen change marker place when click again
+      //listen for search box place selection
       searchBox.addListener('places_changed', () => {
         const places = searchBox.getPlaces();
         if (places.length === 0) return;
@@ -131,9 +132,13 @@
       //set latitude and longitude values
       document.getElementById('latitude').value = latLng.lat();
       document.getElementById('longitude').value = latLng.lng();
+
+      // mark location as selected and hide error message
+      isLocationSelected = true;
+      document.getElementById('locationErrorMessage').classList.add('hidden');
     }
 
-    // upload file view
+    // update file input label when file selected
     const fileInput = document.getElementById('image');
     fileInput.addEventListener('change', function (e) {
       const label = this.nextElementSibling;
@@ -144,6 +149,18 @@
             </svg>
             <span class="text-sm">File selected: ${this.files[0].name}</span>
           </div>`;
+      }
+    });
+
+    // validate location before submiting
+    document.getElementById('auroraForm').addEventListener('submit', function (e) {
+      const locationErrorMessage = document.getElementById('locationErrorMessage');
+
+      // prevent submiting if no location selected
+      if (!isLocationSelected) {
+        e.preventDefault();
+        locationErrorMessage.textContent = 'Please select a location by clicking on the map or searching.';
+        locationErrorMessage.classList.remove('hidden');
       }
     });
 
