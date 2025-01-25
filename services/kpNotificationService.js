@@ -17,6 +17,9 @@ class KpNotificationService {
                 rejectUnauthorized: false
             }
         });
+
+        //track last notification time for each user
+        this.lastNotificationTimes = new Map();
     }
 
     //find users in db who havee highKpNotifications enabled and have valid email address
@@ -36,6 +39,17 @@ class KpNotificationService {
     //user-object with email and username
     //kpData-object with timestamps and kp values
     async sendHighKpAlert(user, kpData) {
+
+        //check if notification was sent in last 24 hours
+        const lastNotificationTime = this.lastNotificationTimes.get(user.email);
+        const currentTime = Date.now();
+
+        if (lastNotificationTime && (currentTime - lastNotificationTime < 24 * 60 * 60 * 1000)) {
+            console.log(`Not sending notification for ${user.email} because it was already sent in past 24 hours`);
+            return false;
+        }
+
+
         //find highest kp value and its corresponding time
         const maxKp = Math.max(...Object.values(kpData));
         const timeOfHighestKp = Object.entries(kpData)
@@ -80,6 +94,10 @@ class KpNotificationService {
         try {
             const result = await this.transporter.sendMail(mailOptions);
             console.log(`High KP alert sent to ${user.email}:`, result.messageId);
+
+            //update last notification time for this user
+            this.lastNotificationTimes.set(user.email, currentTime);
+
             return true;
         } catch (error) {
             console.error(`Error sending KP alert to ${user.email}:`, error);
