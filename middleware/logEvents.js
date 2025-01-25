@@ -5,7 +5,7 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
 
-
+//function for logging activity (events)
 const logEvents = async (message, logName) => {
     const dateTime = `${format(new Date(),'yyyMMdd\tHH:mm:ss')}`;
     const logItem = `${dateTime}\t${uuid()}\t${message}\n`;

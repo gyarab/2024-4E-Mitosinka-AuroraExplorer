@@ -9,6 +9,7 @@ router.get('/forecast', (req, res) => {
   res.render('forecast');
 });
 
+//route for sending email notifications for high KP activity
 router.post('/update-kp-data', async (req, res) => {
   try {
     const { kpData } = req.body;

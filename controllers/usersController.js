@@ -47,13 +47,13 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
-    //create JWT with user detail and secret key
+    //create JWT with user detail and sign it
     const accessToken = jwt.sign(
       { id: user._id, userName: user.userName, email: user.email },
       process.env.ACCESS_TOKEN_SECRET, //secret key for signing token
       { expiresIn: '1h' }
     );
-    //set JWT as a cookie name authToken
+    //set JWT as a cookie named authToken
     res.cookie('authToken', accessToken, { httpOnly: true });
     res.json({ success: true });
   } catch (error) {

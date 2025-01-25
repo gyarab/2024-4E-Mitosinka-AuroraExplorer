@@ -186,7 +186,7 @@ router.get('/api/posts-by-time', async (req, res) => {
     const now = new Date();
     let startDate;
 
-    // calculate start date based on time range
+    // calculate start date based on time frame
     switch (timeRange) {
       case 'day':
         startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); //now -24h
@@ -201,7 +201,7 @@ router.get('/api/posts-by-time', async (req, res) => {
         return res.status(400).json({ error: 'Invalid time range' });
     }
 
-    // find posts within the specified time range
+    // find posts within the specified time frame
     const posts = await Post.find({
       timestamp: { $gte: startDate }
     })

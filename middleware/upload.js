@@ -1,7 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 
-
+//setup storage for uploading files 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/uploads'); 
@@ -11,14 +11,15 @@ const storage = multer.diskStorage({
     }
 });
 
+//function for uploading files to storage
 const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
         if (allowedTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Only JPEG, PNG and GIF are allowed.'));
+            cb(new Error('Only JPEG, PNG and JPG formats are allowed.'));
         }
     }
 });

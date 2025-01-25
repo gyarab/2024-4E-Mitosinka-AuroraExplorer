@@ -62,6 +62,7 @@ router.get('/edit-profile', (req, res) => {
   }
 });
 
+//route for enabling notifications for posts in user selected area
 router.post('/toggle-notifications', async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -78,6 +79,7 @@ router.post('/toggle-notifications', async (req, res) => {
   }
 })
 
+//route for enabling notifications for high KP activity
 router.post('/toggle-kp-notifications', async (req, res) => {
   try {
       const user = await User.findById(req.user._id);

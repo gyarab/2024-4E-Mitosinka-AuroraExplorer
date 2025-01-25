@@ -29,7 +29,6 @@ exports.createPost = async (req, res) => {
         .filter(user => user.id !== userId) // dont notify the creator
         .map(user =>
           notificationService.sendAuroraAlert(user, {
-            imageUrl: process.env.WEBSITE_URL + imageUrl,
             description,
             timestamp: new Date()
           }).catch(err => {
@@ -39,7 +38,7 @@ exports.createPost = async (req, res) => {
         )
     ).then(results => {
       const sentCount = results.filter(result => result !== null).length;
-      console.log(`Sent ${sentCount} notifications for new aurora post`);
+      console.log(`Sent ${sentCount} notifications for new aurora post`);//log amount of emails sent
     }).catch(err => {
       console.error('Error in notification batch:', err);
     });

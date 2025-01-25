@@ -66,9 +66,6 @@ class NotificationService {
           <h2>New Aurora Sighting Alert! ✨</h2>
           <p>Hello ${user.userName},</p>
           <p>A new aurora has been spotted within your alert radius!</p>
-          <div style="margin: 20px 0;">
-            <img src="${postData.imageUrl}" alt="Aurora Sighting" style="max-width: 100%; border-radius: 8px;">
-          </div>
           <p><strong>Description:</strong> ${postData.description || 'No description provided'}</p>
           <p><strong>Posted:</strong> ${new Date().toLocaleString()}</p>
           <a href="${process.env.WEBSITE_URL}/aurorex" 

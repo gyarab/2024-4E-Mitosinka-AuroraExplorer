@@ -50,12 +50,12 @@ app.use('/users', require('./routes/userRoutes.js'));
 app.use('/aurorex', require('./routes/aurorexRoutes.js'));
 
 
-//running HTTPS server
+//settings HTTPS server
 const options = {
   key: fs.readFileSync("server.key"),
   cert: fs.readFileSync("server.cert"),
 };
-
+//run HTTPS server
 https.createServer(options, app).listen(port, function (req, res) {
   console.log("Server started at port 3000");
 });
