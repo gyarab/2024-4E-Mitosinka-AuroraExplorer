@@ -29,9 +29,10 @@ async function fetchKpForecastTomorrow() {
   }
 }
 
-//fetch data from NOAAs
+//// fetch the Kp forecast for today and render the chart
 async function fetchKpForecastToday() {
   try {
+    //fetch data from NOAAs
     const response = await fetch('https://services.swpc.noaa.gov/text/3-day-forecast.txt');
     if (!response.ok) {
       throw new Error('Network connection was not established');

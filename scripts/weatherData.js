@@ -87,7 +87,7 @@ async function initWeatherTracking() {
       });
       latitude = position.coords.latitude;
       longitude = position.coords.longitude;
-      const apiKey = '6f2f23303708a60e0bba222fbf816d1b';//wasnt able to use .env (idk why) so had to insert key like this :(...
+      const apiKey = '6f2f23303708a60e0bba222fbf816d1b';//cant use .env ...
       weatherData = await fetchWeatherData(latitude, longitude, apiKey);
     } else {
       if (errorElement) {
