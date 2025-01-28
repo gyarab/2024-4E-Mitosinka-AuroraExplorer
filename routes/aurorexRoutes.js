@@ -4,9 +4,10 @@ const router = express.Router();
 const Post = require('../models/Post');
 const User = require('../models/User');
 const upload = require('../middleware/upload');
-const { createPost, addComment, toggleLike } = require('../controllers/postController');
+const { createPost, addComment, toggleLike, getPosts, deletePost, deleteComment, timeMapFilter } = require('../controllers/postController');
 
 
+//route for showing posts page 
 router.get('/', async (req, res) => {
   if (!req.user) return res.render('users/login');
   res.render('aurorex/index', {
@@ -16,101 +17,11 @@ router.get('/', async (req, res) => {
   });
 });
 
+//route for loading posts on posts page
+router.get('/api/posts', getPosts);
 
 
-
-
-router.get('/api/posts', async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1; //current page number, default 1
-    const limit = parseInt(req.query.limit) || 6; //post limit per page, default 6
-    const filter = req.query.filter || 'newest'; //sorting, default sort by newest
-    const skip = (page - 1) * limit; //calculate how many posts to skip based on current page
-
-    // create aggregation pipeline for proper sorting
-    const aggregationPipeline = [
-      // join posts collec. with users collec.
-      {
-        $lookup: {
-          from: 'users', //collec. to join with
-          localField: 'userId', //userId in posts collection to match
-          foreignField: '_id', //match with _id in users collection
-          as: 'userInfo' //store user info in userInfo arr
-        }
-      },
-      //convert userInfo array to a single object
-      {
-        $unwind: '$userInfo'
-      },
-      // add calculated fields
-      {
-        $addFields: {
-          //calculates number of likes/comments for each post
-          likesCount: { $size: '$likes' },
-          commentsCount: { $size: '$comments' }
-        }
-      }
-    ];
-    // add sorting based on filter
-    let sort = {};
-    switch (filter) {
-      case 'mostLikes':
-        sort = { $sort: { likesCount: -1, timestamp: -1 } };
-        break;
-      case 'mostComments':
-        sort = { $sort: { commentsCount: -1, timestamp: -1 } };
-        break;
-      case 'newest':
-      default:
-        sort = { $sort: { timestamp: -1 } };
-        break;
-    }
-    //add sorting stage to aggregation pipeline before pagination so the posts are all sorted, just not displayed 
-    aggregationPipeline.push(sort);
-
-    // add pagination
-    aggregationPipeline.push(
-      { $skip: skip }, //skip posts from previous page
-      { $limit: limit } //limit of posts per page
-    );
-
-    // execute aggregation pipeline
-    const posts = await Post.aggregate(aggregationPipeline);
-
-    // populate comments user info
-    await Post.populate(posts, {
-      path: 'comments.userId',
-      select: 'userName profilePicture' //select only necessary fields for comments
-    });
-
-    // get total posts count
-    const totalPosts = await Post.countDocuments();
-
-    // check if there are more posts to load
-    const hasMore = skip + posts.length < totalPosts;
-
-    // format the posts to match frontend structure
-    const formattedPosts = posts.map(post => ({
-      ...post, // spread all original post properties
-      userId: { //restructure userId to match frontend format
-        _id: post.userInfo._id,
-        userName: post.userInfo.userName,
-        profilePicture: post.userInfo.profilePicture
-      }
-    }));
-
-    //send formatted posts and pagination info as json
-    res.json({ posts: formattedPosts, hasMore });
-  } catch (error) {
-    console.error('Error fetching posts:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-
-
-
-
+//route for creating post
 router.get('/post', (req, res) => {
   if (req.user) {
     res.render('aurorex/post', { GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
@@ -119,59 +30,15 @@ router.get('/post', (req, res) => {
   }
 });
 
+//route for deleting post
+router.delete('/:id', deletePost);
 
 
+//route for deleting comment
+router.delete('/:postId/comment/:commentId/delete', deleteComment);
 
 
-router.delete('/:id', async (req, res) => {
-  try {
-    const postId = req.params.id;
-    // find the post by ID and delete it
-    const result = await Post.findByIdAndDelete(postId);
-
-    if (result) {
-      return res.status(200).json({ message: 'Post deleted successfully' });
-    } else {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-  } catch (error) {
-    console.error('Error deleting post:', error);
-    return res.status(500).json({ message: 'Error deleting post' });
-  }
-});
-
-
-
-
-
-router.delete('/:postId/comment/:commentId/delete', async (req, res) => {
-  try {
-    //find post by ID
-    const post = await Post.findById(req.params.postId);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-
-    // find comment by ID in the post
-    const comment = post.comments.id(req.params.commentId);
-    if (!comment) return res.status(404).json({ message: 'Comment not found' });
-
-    //check if usere is authorized to delete comment (owner of post or owner of comment)
-    if (comment.userId.toString() !== req.user.id && post.userId.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Unauthorized' });
-    }
-    //remove comment and save post
-    post.comments.pull({ _id: req.params.commentId });
-    await post.save();
-    res.status(200).json({ message: 'Comment deleted' });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-
-
-
-
+//route for showing live map
 router.get('/live-map', (req, res) => {
   if (!req.user) return res.render('users/login');
   res.render('aurorex/live-map', { GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
@@ -179,50 +46,12 @@ router.get('/live-map', (req, res) => {
 
 
 
-
-router.get('/api/posts-by-time', async (req, res) => {
-  try {
-    const timeRange = req.query.range || 'day'; // default to day
-    const now = new Date();
-    let startDate;
-
-    // calculate start date based on time frame
-    switch (timeRange) {
-      case 'day':
-        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); //now -24h
-        break;
-      case 'week':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);//now - 7days
-        break;
-      case 'month':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); //now - 30 days
-        break;
-      default:
-        return res.status(400).json({ error: 'Invalid time range' });
-    }
-
-    // find posts within the specified time frame
-    const posts = await Post.find({
-      timestamp: { $gte: startDate }
-    })
-      .populate('userId', 'userName profilePicture')
-      .sort({ timestamp: -1 });
-
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-
-
+//filter posts on live map by time frame
+router.get('/api/posts-by-time', timeMapFilter);
 
 
 //hangle adding new post with image
 router.post('/add', upload.single('image'), createPost);
-
-
-
 
 
 //route for adding comments
