@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+//schema for post
 const postSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true, },
   location: { latitude: { type: Number, required: true }, longitude: { type: Number, required: true }, },

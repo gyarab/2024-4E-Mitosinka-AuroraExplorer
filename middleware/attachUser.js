@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-
 const User = require('../models/User'); 
 
+//attaching user from cookies to object
 const attachUser = async (req, res, next) => {
 const token = req.cookies.authToken; //get jwt from cookies
   if (!token) {
