@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 });
 
 //routes for scripts
-app.use('/scripts', express.static('scripts', {
+app.use('/scripts', express.static(path.join(__dirname, 'scripts'), {
   setHeaders: (res, path) => {
     if (path.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
