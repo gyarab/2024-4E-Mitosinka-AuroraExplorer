@@ -33,19 +33,18 @@
       <!-- mobile menu -->
       <div id="mobileMenu" class="md:hidden hidden">
         <% if (user) { %>
-          <a href="/users/profile/<%= user._id %>" class="flex items-center px-4 py-2 hover:bg-gray-700">
+          <a href="/users/profile/<%= user._id %>" class="flex items-center px-4 py-2 hover:bg-gray-800">
             <img src="<%= user.profilePicture %>" alt="Profile"
               class="w-10 h-10 rounded-full object-cover border-2 border-white">
           </a>
           <% } else { %>
             <a href="/users/login" class="block text-white px-4 py-2 hover:bg-blue-500">Login</a>
             <% } %>
-              <a href="/" class="block text-white px-4 py-2 hover:bg-gray-900">Home</a>
+              <a href="/" class="block text-white px-4 py-2 hover:bg-gray-700">Home</a>
               <a href="/forecast" class="block text-white px-4 py-2 hover:bg-gray-700">Forecast</a>
-              <a href="/guide" class="block text-white px-4 py-2 hover:bg-gray-700">Guide</a>
               <a href="/aurorex" class="block text-white px-4 py-2 hover:bg-gray-700">Aurorex</a>
               <a href="/aurorex/live-map" class="block text-white px-4 py-2 hover:bg-gray-700">Live Map</a>
-
+              <a href="/guide" class="block text-white px-4 py-2 hover:bg-gray-700">Guide</a>
       </div>
 
       <script>

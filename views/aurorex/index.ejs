@@ -18,23 +18,24 @@
     <%- include('../partials/header') %>
   </div>
 
-  <nav
-    class="bg-gradient-to-b from-gray-800/50 to-transparent backdrop-blur-sm shadow-md border-gray-700/30 mb-6 pt-16">
+<nav class="bg-gradient-to-b from-gray-800/50 to-transparent backdrop-blur-sm shadow-md border-gray-700/30 mb-6 pt-16">
     <div class="container mx-auto px-6 py-3">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center gap-4">
-          <h1 class="text-white text-2xl font-bold">Aurorex</h1>
-          <select id="postFilter"
-            class="bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
-            <option value="newest">Newest</option>
-            <option value="mostLikes">Most Likes</option>
-            <option value="mostComments">Most Comments</option>
-          </select>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <h1 class="text-white text-lg sm:text-2xl font-bold">Aurorex</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <select id="postFilter"
+                    class="bg-gray-800 text-gray-300 text-sm px-2 py-1.5 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                    <option value="newest">Newest</option>
+                    <option value="mostLikes">Most Likes</option>
+                    <option value="mostComments">Most Comments</option>
+                </select>
+                <a href="/aurorex/post" class="bg-blue-500 text-white px-2 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base rounded-lg">Create Post</a>
+            </div>
         </div>
-        <a href="/aurorex/post" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Create Post</a>
-      </div>
     </div>
-  </nav>
+</nav>
 
 
   <div class="container mx-auto px-4 py-8 border-white">

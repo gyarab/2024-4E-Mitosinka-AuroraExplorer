@@ -24,7 +24,9 @@ router.get('/api/posts', getPosts);
 //route for creating post
 router.get('/post', (req, res) => {
   if (req.user) {
-    res.render('aurorex/post', { GOOGLE_API_KEY: process.env.GOOGLE_API_KEY });
+    res.render('aurorex/post', { 
+      GOOGLE_API_KEY: process.env.GOOGLE_API_KEY
+    });
   } else {
     res.render('users/login')
   }
