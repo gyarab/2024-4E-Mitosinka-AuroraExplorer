@@ -7,6 +7,7 @@
   <title>Live Aurora Post Map</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href=" /css/style.css ">
   <script src="<%=GOOGLE_API_KEY%>&callback=initMap" async defer></script>
 </head>
 
@@ -68,6 +69,7 @@
   <script>
     let map; //global map variable
     let markers = []; //array for markers on map
+    let currentInfoWindow = null; //currently openned info window variable
 
     //create a map to show markers on
     async function initMap() {
@@ -160,10 +162,15 @@
               </div>
             `
           });
+          
 
           //open info window when clicked on marker
           marker.addListener('click', () => {
+            if(currentInfoWindow){//check if info window already openned, if so, close it
+              currentInfoWindow.close();
+            }
             infowindow.open(map, marker);
+            currentInfoWindow = infowindow;
           });
 
           //add marker to markers arr 
