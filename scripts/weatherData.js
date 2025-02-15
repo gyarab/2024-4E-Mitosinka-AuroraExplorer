@@ -71,11 +71,6 @@ async function initWeatherTracking() {
   const currentElement = document.getElementById('current-weather');
   const errorElement = document.getElementById('weather-error');
 
-  if (!forecastElement || !currentElement) {
-    console.error('Weather elements not found');
-    return;
-  }
-
   try {
     let weatherData;
     let latitude, longitude;

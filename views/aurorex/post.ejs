@@ -37,7 +37,7 @@
         <div class="mb-6">
           <label class="block text-white text-lg font-semibold mb-2">Location</label>
           <input type="text" id="location-input"
-            class="w-full bg-gray-800 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full bg-gray-800 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
             placeholder="Search for a location or click on the map">
         </div>
 
@@ -53,7 +53,7 @@
         <div class="mb-8">
           <label class="block text-white text-lg font-semibold mb-2">Description</label>
           <textarea id="description" name="description" rows="4"
-            class="w-full bg-gray-800 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full bg-gray-800 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
             placeholder="Share your experience..."></textarea>
         </div>
 
@@ -64,7 +64,7 @@
         <div class="text-center">
           <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg 
                            transition duration-200 ease-in-out transform hover:scale-105">
-            Share Aurora
+            Create Post
           </button>
         </div>
       </form>
@@ -170,7 +170,7 @@
       }
       if(fileInput.files.length === 0){
         e.preventDefault();
-        errorMessage.textContent = 'Please select a picture by click on the upload image section.';
+        errorMessage.textContent = 'Please select a picture by clicking on the upload image section.';
         errorMessage.classList.remove('hidden');
       }
     });
