@@ -18,10 +18,6 @@
             class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-md font-medium transition-all duration-300 hover:bg-gray-700/30">
             Forecast
           </a>
-          <a href="/guide"
-            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-md font-medium transition-all duration-300 hover:bg-gray-700/30">
-            Guide
-          </a>
           <a href="/aurorex"
             class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-md font-medium transition-all duration-300 hover:bg-gray-700/30">
             Aurorex
@@ -30,14 +26,25 @@
             class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-md font-medium transition-all duration-300 hover:bg-gray-700/30">
             Live Map
           </a>
+          <a href="/guide"
+            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-md font-medium transition-all duration-300 hover:bg-gray-700/30">
+            Guide
+          </a>
         </div>
 
+        <% if (user) { %>
+          <a href="/users/profile/<%= user._id %>" class="flex items-center">
+            <img src="<%= user.profilePicture %>" alt="Profile"
+              class="w-8 h-8 rounded-full object-cover border-2 border-white hover:border-blue-400 transition duration-300">
+          </a>
+          <% } else { %>
+            <a href="/users/login" class="ml-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+            text-white px-6 py-2 rounded-full text-m font-semibold shadow-lg 
+            transform transition-all duration-300 hover:scale-105">
+              Login
+            </a>
+            <% } %>
 
-        <a href="/users/login" class="ml-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
-                    text-white px-6 py-2 rounded-full text-m font-semibold shadow-lg 
-                    transform transition-all duration-300 hover:scale-105">
-          Login
-        </a>
 
       </div>
 
@@ -69,10 +76,6 @@
             class="text-gray-300 hover:text-white px-4 py-2 transition-all duration-300 transform hover:scale-105">
             Forecast
           </a>
-          <a href="/guide"
-            class="text-gray-300 hover:text-white px-4 py-2 transition-all duration-300 transform hover:scale-105">
-            Guide
-          </a>
           <a href="/aurorex"
             class="text-gray-300 hover:text-white px-4 py-2 transition-all duration-300 transform hover:scale-105">
             Aurorex
@@ -81,14 +84,28 @@
             class="text-gray-300 hover:text-white px-4 py-2 transition-all duration-300 transform hover:scale-105">
             Live Map
           </a>
+          <a href="/guide"
+            class="text-gray-300 hover:text-white px-4 py-2 transition-all duration-300 transform hover:scale-105">
+            Guide
+          </a>
         </div>
 
 
-        <a href="/users/login" class="mt-8 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
-                    text-white px-8 py-3 rounded-full text-md font-semibold shadow-lg 
-                    transform transition-all duration-300 hover:scale-105">
-          Login
-        </a>
+        <% if (user) { %>
+          <a href="/users/profile/<%= user._id %>" class="flex items-center px-4 py-2 hover:bg-gray-800">
+            <img src="<%= user.profilePicture %>" alt="Profile"
+              class="w-10 h-10 rounded-full object-cover border-2 border-white">
+          </a>
+          <% } else { %>
+            <a href="/users/login" class="mt-8 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+            text-white px-8 py-3 rounded-full text-md font-semibold shadow-lg 
+            transform transition-all duration-300 hover:scale-105">
+              Login
+            </a>
+            <% } %>
+
+
+
 
       </div>
     </div>
