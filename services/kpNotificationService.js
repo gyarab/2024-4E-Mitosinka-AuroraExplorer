@@ -80,7 +80,7 @@ class KpNotificationService {
           <p style="margin-top: 20px; color: #666;">
             Remember that aurora visibility depends on various factors including weather conditions and your location.
           </p>
-          <a href="${process.env.WEBSITE_URL}/aurorex"
+          <a href="${process.env.WEBSITE_URL}/forecast"
              style="display: inline-block; padding: 10px 20px; background-color: #4299e1; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px;">
             Check Aurora Posts
           </a>

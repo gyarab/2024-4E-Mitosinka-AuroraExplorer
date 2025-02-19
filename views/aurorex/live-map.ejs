@@ -98,7 +98,7 @@
         ],
       });
       //load posts for last 24h by default
-      await loadPosts('day');
+      await loadPosts();
     }
     //function to load posts on a selected time frame, default time frame is past 24h
     async function loadPosts(range = 'day') {

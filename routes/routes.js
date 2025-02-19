@@ -13,7 +13,7 @@ router.get('/forecast', (req, res) => {
 router.post('/update-kp-data', async (req, res) => {
   try {
     const { kpData } = req.body;
-    console.log('Received KP data:', kpData);
+    console.log('Recieved kp data:', kpData);
     
     const kpNotificationService = require('../services/kpNotificationService');
     await kpNotificationService.checkAndNotifyUsers(kpData);

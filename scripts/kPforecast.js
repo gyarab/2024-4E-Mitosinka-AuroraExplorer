@@ -3,9 +3,6 @@ async function fetchKpForecastTomorrow() {
   try {
     //fetch data from NOAAs
     const response = await fetch('https://services.swpc.noaa.gov/text/3-day-forecast.txt');
-    if (!response.ok) {
-      throw new Error('Network connection was not established');
-    }
     const textData = await response.text();
     const lines = textData.split('\n');
     const timeKpMap2 = {};
@@ -34,9 +31,6 @@ async function fetchKpForecastToday() {
   try {
     //fetch data from NOAAs
     const response = await fetch('https://services.swpc.noaa.gov/text/3-day-forecast.txt');
-    if (!response.ok) {
-      throw new Error('Network connection was not established');
-    }
     const textData = await response.text();
     const lines = textData.split('\n');
     const timeKpMap1 = {};
@@ -50,6 +44,8 @@ async function fetchKpForecastToday() {
         timeKpMap1[time.slice(0, -2)] = kpIndex;
       }
     }
+
+    renderChart1(timeKpMap1);
 
     // send data to server for notification processing
     try {
@@ -65,7 +61,7 @@ async function fetchKpForecastToday() {
       console.error('Error sending KP data to server:', error);
     }
 
-    renderChart1(timeKpMap1);
+
   } catch (error) {
     console.error('Error fetching todays Kp forecast data:', error);
   }
