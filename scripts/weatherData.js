@@ -4,6 +4,7 @@ async function fetchWeatherData(latitude, longitude, apiKey) {
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
     );
+    console.log(response);
     if (!response.ok) throw new Error('Weather API request failed');
     return await response.json();
   } catch (error) {
@@ -53,7 +54,7 @@ function updateWeatherDisplay(currentWeather, forecastElement, currentElement) {
     forecast.className = 'text-center flex flex-col items-center justify-center';
     forecast.innerHTML = `
     <div class="flex flex-col items-center rounded-lg p-2 ">
-      <p class="text-sm text-gray-300 font-medium mb-1">+${(i + 1) * 6}h</p>
+      <p class="text-sm text-gray-300 font-medium mb-1">+${(i + 1) * 3}h</p>
       <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png"
            alt="Weather icon"
            class="mx-auto w-12 h-12">
