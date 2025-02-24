@@ -66,7 +66,7 @@ node server.js
 
 ## Note
 
-### Some features might be disabled without configuration of:
+### Some features might be disabled without configuration of .env:
  - Database connection
  - Google Maps link with API key
  - Email configuration
