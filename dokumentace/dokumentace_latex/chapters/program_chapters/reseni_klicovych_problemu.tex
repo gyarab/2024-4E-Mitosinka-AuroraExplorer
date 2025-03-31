@@ -1,0 +1,142 @@
+\section{Řešení klíčových problémů}
+
+\subsection{Autentikace uživatele}
+
+\par Autentikace je proces ověření identity uživatele. Jejím cílem je se ujistit, že uživatel, který se snaží přihlásit, je opravdu tím, za koho se vydává. Autentikace na mé webové aplikaci probíhá standartím způsobem pomocí u a hesla.
+\par Registrace začíná na stránce /users/register, kde uživatel zadá své údaje, tj. uživatelské jméno, e-mail, heslo a heslo po druhé, pro oveření, že se uživatel při zadávání nepřepsal. Po předložení dat na server router v userRoutes.js zareaguje zavoláním funkce `\texttt{register}` z controlleru userController.js. Ta nejprve ověří, zdali zadaný e-mail není již v databázi uložen, a následně je využita knihovna \texttt{bcrypt}, která implementuje hashovací algoritmus pro bezpečné ukládání hesel. Pomocí bcrypt je heslo zahashováno a je k němu přidáno 10 salt rounds (k heslu se před hashovaním přidá 10 náhodných znaků), aby byla zajištěna jedinečnost hashe hesla. 
+\begin{lstlisting}[caption = {Hashování hesla se solí},label = {lst:stranka}]
+const hashedPassword = await bcrypt.hash(password, 10);
+\end{lstlisting}
+Následně jsou uživatelem zadaná data spolu s zahashovaným heslem uložena do databáze a uživatel je přesměrován na stránku /users/login, která slouží k přihlášení.
+\par Na této stránce musí uživatel zadat e-mail, který použil při registraci, a heslo k němu vytvořené. Po předložení dat router v userRoutes.js zavolá funkci login z controlleru usersController.js, která nejprve ověří existenci e-mailu v databázi a následně pomocí funkce `\texttt{compare()}` z knihovny \texttt{bcrypt} porovná, zdali zadané heslo odpovídá zahashovanému heslu pro daný e-mail v databázi. V případě shody je využita funkce `\texttt{sign()}` z knihovny \texttt{jwt} (jsonwebtoken), která vytvoří JSON Web Token. Nejprve jsou do argumentu funkce vložena uživatelská data, následně je třeba token podepsat tajným klíčem, který je uložen v .env souboru a chrání integritu tokenu, a nakonec je nadefinováno časové rozmezí, po jehož uplynutí platnost tokenu vyprší a uživatel se musí znovu přihlásit. Následně je JWT token uložen do cookie s parametrem `\texttt{httpOnly: true}`, což zamezuje přístup ke cookie v JavaScriptu na frontendu \cite{jwt_auth_tutorial}\cite{nodejs_jwt_mongodb}. 
+\newpage
+\begin{lstlisting}[caption = {Vytvoření JWT tokenu a jeho uložení do cookie},label = {lst:stranka}]
+    //create JWT with user detail and sign it
+    const accessToken = jwt.sign(
+      { id: user._id, userName: user.userName, email: user.email },
+      process.env.ACCESS_TOKEN_SECRET, //secret key for signing token
+      { expiresIn: '1h' }
+    );
+    //set JWT as a cookie named authToken
+    res.cookie('authToken', accessToken, { httpOnly: true });
+\end{lstlisting}
+
+\par Následně je třeba připojit uživatele z cookie do objektu, aby bylo možné s nim pracovat. O to se stará middleware attachUser.js. Ten vezme uživatelská data uložená v cookie 'authToken' a  nejprve pomocí funkce `\texttt{verify()}` z \texttt{jwt} knihovny ověří platnost tokenu. V případě, že token je platný, najde v databázi uživatele s id, které bylo uložené v cookie. Následně uživatelská data připojí k objektu req.user.
+\begin{lstlisting}[caption = {Ověření JWT tokenu a připojení uživatele k objektu req.user},label = {lst:stranka}]
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET); //verify the token using secret token
+    const user = await User.findById(decoded.id); 
+    if (!user) {
+      req.user = null; 
+    } else {
+      //if user found, attach it to object user
+      req.user = user; 
+    }
+  }
+\end{lstlisting}
+
+
+\subsection{Získávání dat o KP indexu a vytváření grafů}
+
+\par Aby bylo možné na stránce /forecast zobrazovat grafy s předpovědí KP indexu, je třeba data nejprve získat z důvěrného zdroje a následně z nich vytvořit grafy. O to se stará script kpForecast.js. Data jsou získana ze spolehlivého zdroje, jedná se o SWPC od NOAA, tedy Space Weather Prediction Center, který je pod správu National Oceanic and Atmospheric Administration.
+\par Ve scriptu se nachází dvě hlavní funkce, `\texttt{fetchKpForecastToday()}` a `\texttt{fetchKpForecastTomorrow()}`. Obě funkce získávají data z třídenní předpovědi od SWPC ve formě textového souboru. Funkce nejprve pošlou požadavek na stránku a následně obdrží textový soubor \cite{javascript_fetch_json}. 
+\begin{lstlisting}[caption = {Získávání dat o KP indexu},label = {lst:stranka}]
+    const response = await fetch('https://services.swpc.noaa.gov/text/3-day-forecast.txt');
+\end{lstlisting}
+\par Data ze souboru je nutné upravit a odstranit nepotřebné informace. Každá funkce data zpracovává jinak, neboť `\texttt{fetchKpForecastToday()}` vyhledává první sloupec v tabulce, která je součástí třídenní předpovědi, a `\texttt{fetchKpForecastTomorrow()}` druhý sloupec. U `\texttt{fetchKpForecastToday()}` probíhá vybírání dat následovně; soubor se prochází řádek po řádku než se narazí na větu, která je řádek před tabulkou. Následně jsou využity regulární výrazy, aby byly definovány řádky, které odpovídají požadavkům. V případě nalezení takové řádky, je první část řádky (získaný čas a velikost KP indexu jsou odděleny mezerou) uložena do proměnné time a druhá do proměnné kpIndex. Následně jsou data vložena do array `\texttt{timeKpMap1}`. Z proměnné time je třeba odebrat poslední dvě písmena, jelikož obsahuje zkratku časové zóny na konci, tj. UT.
+\begin{lstlisting}[caption = {Třídění dat ze souboru forecast.txt a vkládání hodnot do timeKpMap1},label = {lst:stranka}]
+    const response = await fetch('https://services.swpc.noaa.gov/text/3-day-forecast.txt');
+    const textData = await response.text();
+    const lines = textData.split('\n');
+    const timeKpMap1 = {};
+
+    for (const line of lines) {
+      if (line.includes('NOAA Kp index breakdown')) continue;
+      const match = line.match(/(\d{2}-\d{2}UT)\s+([\d.]+)/);
+      if (match) {
+        const time = match[1].trim();
+        const kpIndex = Math.round(parseFloat(match[2].trim()));
+        timeKpMap1[time.slice(0, -2)] = kpIndex;
+      }
+    }
+\end{lstlisting}
+\par Po vytvoření objektu, který obsahuje dané časy a velikosti KP indexu, je zavolána funkce `\texttt{renderChart1(timeKpMap1)}`. Ta nejprve najde element grafu v souboru forecast.ejs. Následně nadefinuje hodnoty grafu, x-ová souřadnice je časové rozmezí a y-ová jsou hodnoty KP indexu, a barvy odpovídající daným velikostem sloupců KP indexu. Dále je nadefinován samotný graf `\texttt{myChart}`, který je vytvořen pomocí knihovny \texttt{Chart.js}\cite{chartjs_bar}\cite{chartjs_legend}\cite{chartjs_tutorial}. Podobný proces probíhá u funkce `\texttt{fetchKpForecastTomorrow()}`. Zpracování dat při výběru hodnot KP indexu z třídenní předpovědi probíhá odlišně, jelikož se získává z druhého sloupce tabulky. 
+\par Poté následuje rozesílání e-mailů. Array `\texttt{timeKpMap1}` je odeslána na serverový endpoint `\texttt{/update-kp-data}, kde je následně zpracován routerem v routes.js a e-maily jsou rozeslány. 
+\par Nakonec jsou obě funkce exportovány jako globální, aby bylo možné je využít v souboru forecast.ejs.
+
+
+\subsection{Získávání dat o počasí}
+
+\par Aby bylo možné na stránce /forecast zobrazovat data o počasí, je potřeba je někde získat a upravit je tak, aby bylo možné je zobrazit. O to se stará script weatherData.js. Data o počasí, jako oblačnost, teplota, vlhkost a rychlost větru jsou získávána ze spolehlivého zdroje OpenWeatherMap. OpenWeatherMap poskytuje jejich Weather API, které obsahuje všechny základní informace o počasí, které jsou pro moji stránku důležité.
+\par Tento soubor se skládá ze 4 hlavních funkcí, z nichž první je `\texttt{fetchWeatherData()}`. Do parametru této funkce se vkládá zeměpisná šířka, délka a API klíč, který je potřebný k získání dat z Weather API. Následně funkce pošle request na API a odpověď vratí ve formátu JSON. 
+\begin{lstlisting}[caption = {OpenWeatherMap API požadavek},label = {lst:stranka}]
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
+    );
+\end{lstlisting}
+\par Další z funkcí je `\texttt{getCurrentWeather()}`, která zajišťujě zpracování získaných dat. Z odpovědi z API vybere potřebné informace a zpracuje je tak, aby se s nimi jednodušeji pracovalo. Získaná a zpracovaná data jsou teplota, která je zaokrouhlena, oblačnost, vlhkost, ikonka počasí, rychlost větru, popis počasí a 4 předpovědi na dalších 12 hodin v 3-hodinových intervalech \cite{openweather_doc}.
+\par Následně se zpracovana data musí připravit i vzhledově, aby bylo možné je zobrazit na stránce /forecast. O to se stará funkce `\texttt{updateWeatherDisplay()}`. Ta rozdělí data na dvě hlavní části, aktuální, která obsahuje veškeré informace o aktuálním počasí z `\texttt{getCurrentWeather()}` a předpověď, která obsahuje pouze oblačnost, ikonku počasí a teplotu.
+\par Funkce, která všechny výše zmíněné funkce spojuje dohromady a inicializuje samotné fungování předpovědi je `\texttt{initWeatherTracking()}`. Ta nejprve najde potřebné HTML elementy na zobrazovaní dat nebo errorů a poté zkontroluje, že spojení mezi klientem a serverem je přes síťový protokol HTTPS, který je pro využívání API nutný \cite{nodejs_https_server}. Následně určí aktuální lokaci uživatele pomocí geolokační API v prohlížeči (je nutné udělit serveru povolení k lokaci, jinak předpověď počasí nebude inicializována) a se získanými souřadnicemi a privátním OpenWeatherMap API klíčem v parametru je zavolána funkce `\texttt{fetchWeatherData()}`.
+\begin{lstlisting}[caption = {Získání lokace z prohlížeče},label = {lst:stranka}]
+    const position = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+\end{lstlisting}
+\par Následně je zavolána funkce `\texttt{getCurrentWeather()}`, do jejíhož parametru je vložena odpověď z předchozí funkce. Nakonec se pomocí `\texttt{updateWeatherDisplay()}` získaná a zpracovaná data zobrazí. Data se automaticky obnovují v časovém intervalu 1800000ms, tedy 30 minut.
+
+\subsection{Zasílání e-mailů při vysokém KP indexu}
+
+\par V případě, že se vyskytne v předpovědi KP indexu na aktuální den časový interval s intenzitou KP vyšší nebo rovno 5, proběhne rozesílání e-mailů všem uživatelům, kteří maji v databázi u atributu \texttt{notificationsForHighKp} hodnotu true, tedy mají ve svém profilu zapnuté rozesílaní e-mailu při KP $>= 5$.
+\par Tento proces zajišťuje služba kpNotificationService.js. Rozesílání e-mailu probíhá skrze knihovnu \texttt{nodemailer}, která umožňuje spojení s e-mailovým účtem a posílání e-mailů využitím připojeného účtu \cite{mailtrap_nodemailer} \cite{nodejs_nodemailer_tutorial}.
+\par Při vytváření instance třídy kpNotificationService se v konstruktoru inicializuje nodemailer transport s využitím služby gmail a nastaví se přihlašovací údaje k gmail účtu, které jsou načteny ze soukromého .env souboru. Zároveň se vytvoří mapa s časy odeslaných e-mailů jednotlivým uživatelům, což zabezpečí přehled, který uživatel již e-mail pro daný den dostal, aby se rozesílání týmž uživatelům neopakovalo.
+\par Před rozesíláním e-mailu je třeba zjistit, kteří uživatelé mají notifikace zapnuté a o to se stará metoda `\texttt{findUsersWithKpNotifications()}`.
+\par Dále metoda `\texttt{sendHighKpAlert()}`, která má jako parametr uživatele a KP data, která budou v e-mailu. Nejprve zkontroluje, zdali uživatel, který má obdržet e-mail, již neobdržel jeden za posledních 24 hodin. V případě, že žadný neobdržel, průběh metody pokračuje. Následně v mapě KP dat, která obsahuje časový úsek a hodnotu KP indexu, najde úsek s nejvyšší hodnotou KP indexu a poté je nakonfigurovan samotný e-mail, tj. odesílatel, příjemce, předmět a obsah e-mailu. Data z mapy KP dat jsou vložena do e-mailu spolu se samostatným řádkem, kde je zmíněn, dříve zjištěný, časový úsek s nejvyšší hodnotu KP indexu. Po nadefinování e-mailu je e-mail poslán a v mapě časů poslaných e-mailů je upraven čas odeslání posledního e-mailu.
+\par Poslední metoda `\texttt{checkAndNotifyUsers()}`, jejíž parametrem je mapa časů a hodnot KP indexu, nejprve zkontroluje, zdali se v mapě nachazí hodnota KP indexu $>=5$. Pokud ano, jsou z databáze vybráni všichni uživatelé, kteří mají zapnuté notifikace na vysoký KP index, tedy u atributu \texttt{notificationsForHighKp} mají hodnotu true. Následně je pro každého jednotlivého uživatele zavolána metoda `\texttt{sendHighKpAlert()}`, která dostane jako parametr daného uživatele a mapu KP dat.
+\par API endpoint POST /update-kp-data je zpracován routerem v routes.js. Script kpForecast.js na tento endpoint pošle mapu s KP daty, načež je zavolána metoda `\texttt{checkAndNo tifyUsers()}`. V jejím parametru je vložena mapa KP dat, která byla vytvořena při vytváření grafu scriptem kpForecast.js.
+\begin{lstlisting}[caption = {/update-kp-data endpoint v routes.js},label = {lst:stranka}]
+router.post('/update-kp-data', async (req, res) => {
+  try {
+    const { kpData } = req.body;
+    console.log('Recieved kp data: ', kpData);
+    
+    const kpNotificationService = require('../services/kpNotificationService');
+    await kpNotificationService.checkAndNotifyUsers(kpData);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error handling kp data:', error);
+  }
+});
+\end{lstlisting}
+
+\subsection{Zasílání e-mailů při výskytu příspěvku v nastavené lokaci}
+
+\par Uživatel má ve svém profilu možnost označení libovolné oblasti. Na zobrazené mapě označí místo, jenž slouží jako střed kružnice, u které následně může měnit poloměr v kilometrech. V případě, že je nahrán příspěvek, u kterého je označená lokace pořízení fotografie uvnitř zvolené oblasti, uživatel má možnost obdržet informační e-mail. E-mail obdrží uživatel v případě, že má zapnuté notifikace na zasílání e-mailů v označené oblasti. O tento proces se stará služba notificationService.js.
+\par Pro rozesílání e-mailu je, stejně jako u notifikací na vysoký KP index, využita knihovna \texttt{nodemailer} \cite{mailtrap_nodemailer} \cite{nodejs_nodemailer_tutorial}. 
+\par Při vytváření instance třídy NotificationService, podobně jako u KpNotificationService, se v konstruktoru inicializuje nodemailer transport s využitím služby gmail a nastaví se přihlašovací údaje k gmail účtu, které jsou načteny ze soukromého .env souboru.
+\par Metoda `\texttt{calculateDistance()}`, do jejíhož parametru se vloží zeměpisná délka a šírka dvou lokací a následně spočíta vzdálenost těchto dvou bodů. Pro vypočítání vzdálenosti se využívá Haversinuv vzorec, který umožňuje spočítání vzdálenosti dvou bodů na kouli (Zemi) \cite{latlong_distance_calculation}.
+\begin{lstlisting}[caption = {Metoda pro spočítání vzdálenosti dvou bodů na kouli},label = {lst:stranka}]
+  calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; //radius of earth
+    const dLat = (lat2 - lat1) * Math.PI / 180; //latitude difference to radians
+    const dLon = (lon2 - lon1) * Math.PI / 180; //longtitude difference to radians
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2); //the Haversine formula
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // angular distance in radians
+    return R * c; //distance in kilometers 
+  }
+\end{lstlisting}
+\par `\texttt{FindUsersInRange()}` metoda s parametrem zeměpisné šířky a délky vytvořeného příspěvku slouží k nalezení uživatelů, kteří mají zapnuté notifikace na příspěvky v oblasti, tedy v databázi u atributu notificationsEnabled mají hodnotu true a zároveň mají nastavenou svoji uživatelskou lokaci. Následně pro každého uživatele, který odpovídá těmto požadavkům, zavolá metodu `\texttt{calculateDistance()}` a zjistí, jestli byl příspěvek vytvořen v jejich lokaci či mimo.
+\par Poslední metoda `\texttt{sendAuroraAlert()}` má v parametru objekt obsahující uživatele, u kterého je příspěvek uvnitř uživatelské lokace, a objekt s daty o vytvořeném příspěvku. V metodě se nejprve nadefinuje e-mail a následně je odeslán uživateli, který byl v objektu v parametru.
+\par Tato třída NotificationService je využita ve funkci `\texttt{createPost()}` v controlleru postController.js, která zpracovává vytvoření příspěvku v databázi. Po vytvoření příspěvku je zavolána metoda `\texttt{findUsersInRage()}` a následně pro každého uživatele je zavolána metoda `\texttt{sendAuroraAlert()}`, aby obdrželi e-mail o vytvoření nového příspěvku v jejich lokaci.
+
+\subsection{Nekonečné načítání příspěvků}
+\par Aby se nestalo, že načítání stránky /aurorex, která slouží k zobrazení příspěvků, potrvá příliš dlouho kvuli hromadnému zobrazování všech příspěvků naráz, implementoval jsem do projektu postupné, nekonečné načítání příspěvků.
+\par Stránká má při načtení několik důležitých proměnných, \texttt{page}, která říká číslo aktuální stranky, \texttt{loading}, která určuje, zdali se aktuálně načítají příspěvky, aby bylo zabráněno několika načítáním zároveň, a \texttt{hasMore}, která kontroluje, jestli existují další příspěvky, které by se mohly načíst. Následně je potřeba někde uložit aktuálně zvolený filtr a k tomu slouží proměnná currentFilter, která má výchozí hodnotu nastavenou na 'newest', tedy příspěvky jsou seřazeny od nejnovějšího.
+\par Jakmile se stránka načte, server odešle API požadavek pro načtení první sady příspěvků. Požadavek zpracuje router v aurorexRoutes.js, který zavolá funkci `\texttt{getPosts()}` z controlleru postController.js.
+\begin{lstlisting}[caption = {API požadavek pro obdržení sady příspěvků},label = {lst:stranka}]
+    const response = await fetch(`/aurorex/api/posts?page=${page}&limit=6&filter=${currentFilter}`);
+\end{lstlisting}
+\par Aby mohla funkce správně fungovat, musel jsem využít MongoDB aggregation pipeline, která mi umožňuje provádět složitější operace s daty z databáze, tj. spojování kolekcí, filtrování či sčítání obsahů polí. Aggregation pipeline nejprve spojí data o příspěvku s daty o uživateli, následně ke každému příspěvku přidá 2 pole, první určující počet liků a druhé počet komentářu, aby bylo možné příspěvky řadit podle množství liků a komentářů. Následně aplikuje nastavený filtr, který přišel v API požadavku, přeskočí již načtené příspěvky a poté vrátí 6 příspěvků (počet příspěvků na jednu stránku). Následně server pošle sadů příspěvku na klientskou část \cite{mongodb_total_likes}.
+\par Ve scriptu na stránce /aurorex je následně každý post obdržený z API požadavku transformován do HTML elementu. Ten je poté přídán do kontejneru  obsahující příspěvky. 
+\par Nekonečný scroll je aktivován pomocí scroll listeneru. Když se uživatel posune 100 pixelů před konec stránky, zavolá se funkce `\texttt{loadMorePosts()}`, která opět pošle API request s novou sadou příspěvků a takto opakovaně, než jsou zobrazeny všechny příspěvky v databázi.
+\par V případě změněny filteru během scrollovaní, funkce má nastavený event listener na změnu filteru. Když proběhne změněna filteru, funkce zavolá sama sebe s parametrem true, který zabezpečí, že se resetují načtené příspěvky a začnou se načítat od začátku s novým filterem.
