@@ -1,0 +1,56 @@
+\section{Datové struktury}
+
+\subsection{EJS}
+
+\par EJS (Embedded JavaScript) je šablonovací engine pro JavaScript, který se často používá při vývoji webových aplikací. Umožňuje vytvářet dynamický HTML kód pomocí JavaScriptu přímo v HTML a je navržen tak, aby zjednodušil proces generování dynamického obsahu na stránkách. Obsahuje kombinaci HTML a JavaScriptu, což usnadňuje vytváření dynamického obsahu, například pro stránku uživatele, na základě potřebných dat.
+\par Jednotlivé EJS šablony jsou strukturovaně uspořádány podle jednotlivých sekcí webu v adresaři /views. Je zde také adresář  /views/partials, který obsahuje header, tj. záhlaví stránky. Díky již zmíněné dynamičnosti mám možnost obsah daného souboru importovat do libovolného EJS souboru, čímž se elegantně vyvaruji psaní záhlaví na každou jednotlivou stránku.
+\par Předávání dat ze serveru do EJS šablony probíhá pomocí metody \texttt{render()}, která umožňuje předat objekty, jejichž data jsou potřebná pro zobrazení. Tato metoda se volá v souborech v adresáři routes a kromě předání dat slouží k vykreslení a zkompilování vybrané stránky.
+\par Při tvorbě EJS šablon využívám několik typů tagů, které mi umožňují vkládat JavaScriptový kód nebo využívat hodnoty přoměnných přímo v HTML. Například pro vložení obsahu jednoho EJS souboru do druhého se použije tento tag.
+\begin{lstlisting}[caption = {EJS tag s include atributem},label = {lst:stranka}]
+  <div class="fixed top-0 left-0 right-0 z-50 shadow-md">
+    <%- include('../partials/header') %>
+  </div>
+\end{lstlisting}
+\par V kontextu MVC (Model View Controller) architektury fungují EJS šablony jako vrstva View, která přijímá data z kontrolerů a transformuje je do podoby, která se zobrazí uživateli.
+
+\subsection{Databáze}
+
+\par V mém projektu jsem zvolil NoSQL databázi MongoDB, která je objektově orientovaná, dynamická a dobře škálovatelná. Místo tabulek (jako u relačních databází MySQL apod.) používá kolekce a místo řádků a sloupců pole či dokumenty. 
+\par Pro práci s MongoDB v Node.js runtime enviromentu jsem zvolil knihovnu \texttt{Mongoose}. Mongoose mi umožňuje definovat schémata pro jednotlivé kolekce v daných souborech a následně s nimi pracovat.
+\par V hlavním souboru, kde se spouští samotný server, server.js je zavolána funkce `\texttt{connectDB()}`, která je importována z config adresáře ze souboru dbConfig.js. Ten zajišťuje navázání spojení s databází pomocí \texttt{Mongoose} a MongoDB URI, tj. MongoDB connection string.
+\par Samotné modely jsou uloženy v adresáři models, tedy modely User a Post. Model User obsahuje schéma uživatele, ve kterém jsou základní informace jako uživatelské jméno, email, zahashované heslo apod. Id MongoDB vytvoří automaticky, tedy není potřeba přidávat pole pro ID uživatele. Při vytvoření modelu, např. User,  MongoDB automaticky vytvoří kolekci Users, do které se vytvořené dokumenty (jednotliví uživatelé) ukládají.
+\begin{lstlisting}[caption = {Schéma User},label = {lst:stranka}]
+const userSchema = new mongoose.Schema({
+    userName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, required: false },
+    profilePicture: { type: String, default: '/uploads/default-profile-picture.jpg' },
+    location: { latitude: Number, longitude: Number },
+    alertRadius: { type: Number, default: 50 },
+    notificationsEnabled: { type: Boolean, default: true },
+    notificationsForHighKp: {type: Boolean, default: true}
+});
+\end{lstlisting}
+\par Díky modelům mám možnost jednoduše provádět dotazy na databázi. Například metoda \texttt{findById()}, která mi umožňuje najít v dané kolekci dokument s daným ID. Tato metoda je využita pro příklad při odstraňování vybraného komentáře, kde s její pomocí je nalezen příspěvek, u kterého je požadované smazaní komentáře. V tomto případě je do parametru metody vloženo ID příspěvku, které bylo obdrženo z požadavku odeslaného uživatelem.
+\begin{lstlisting}[caption = {Metoda pro nalezení příspěvku pomocí ID},label = {lst:stranka}]
+    const post = await Post.findById(req.params.postId);
+\end{lstlisting}
+\par V kontextu MVC (Model View Controller) architektury fungují modely jako vrstva model, která slouží k nadefinování struktury dat, tedy schémat.
+
+\subsection{Controllery}
+\par V kontextu MVC architektury controllery v mé webové aplikaci slouží jako prostředníci mezi modely a views, tedy EJS šablonami. Zpracovávají požadavky uživatelů, upravují data v databázi prostřednictvím modelů a připravují data pro frontendovou část.
+\par Funkce exportované z controllerů jsou volány v routerech, které na jednotlivé konkretní požadavky odeslané uživatelem zareagují zavoláním určité funkce dle požadavku.
+\par V adresáři controllers se nacházi dva controllery, postController.js a usersController.js. PostController.js slouží ke zpracování veškerých operací, které souvisí s příspěvky a usersController.js spravuje operace týkající se uživatelů.
+
+\par V postControlleru je celkem 7 funkcí. První je `\texttt{timeMapFilter}`, která je zavolána při změnění časového filteru na stránce /aurorex/live-map. Funkce v parametru range, uvedeného v URL adrese, obdrží časový rámec day, week nebo month a následně podle daného parametru spočítá čas, od kterého se mají příspěvky zobrazovat a vrátí vybrané příspěvky.
+\par Funkce `\texttt{deleteComment}` slouží ke smazání komentáře z příspěvku. Funkce dle ID příspěvku najde daný příspěvek a pomocí ID komentáře požadovaný komentář. Nakonec oveří, že o smazaní se pokouší tvůrce příspěvku nebo tvůrce komentáře a poté komentář odstraní z databáze.
+\par `\texttt{CreatePost}` vytváří nový příspěvek. Nejprve data obdržená při vytváření uloží do databáze a místo nahrané fotografie uloží cestu k fotografii. Následně zavolá metodu `\texttt{findUsersInRange()}`, která je součástí sekce 5 Řešení klíčových problémů subsekce 5 Zasílání emailů při výskytu příspěvku v nastavené lokaci. Při volání této funkce v routeru aurorexRoutes.js je také zavolána metoda `\texttt{single()}`, která je součástí objektu upload, jenž je importován z middlewaru upload.js, do jejíhož parametru je vložena nahrávaná fotografie a je uložena do adresáře /public/uploads.
+\par `\texttt{DeletePost}` slouží ke smazání vybraného příspěvku, `\texttt{addComment}` k přidání komentáře k vybranému příspěvku a `\texttt{toggleLike}` k přidání nebo odstranění liku z příspěvku. Funkce `\texttt{getPosts}` je zdokumentována v sekci 5 Řešení klíčových problémů subsekce 6 Nekonečné načítání příspěvků.
+
+\par Druhý controller usersController.js obsahuje 8 funkcí. Funkce `\texttt{register}` slouží k vytvoření nového uživatelského účtu. Nejprve zkontroluje, zdali není již uživatelem zadaný email registrovaný, v případě, že ne, tak vezme zadané údaje, zahashuje heslo a uloží je do databáze. 
+\par Funkce `\texttt{login}` slouží k přihlášení uživatele, tedy oveřuje přihlašovací údaje. V případě shody emailu a hesla vytvoří JWT token (JSON Web Token), do kterého vloží payload obsahující id uživatele, jeho email a uživatelské jméno, podepíše token privátním klíčem a nastaví expiraci na 1 hodinu.
+\par `\texttt{UpdateProfile}` slouží k aktualizaci uživatelských dat. Nejprve načte upravená data, zkontroluje zdali byl nahrán soubor, čímž pozná, jestli uživatel nahrál nový profilový obrázek. Poté přepíše potřebná data u uživatele a vytvoří nový JWT (JSON Web Token) s aktualizovanými údaji.
+\par `\texttt{GetProfile}` zobrazuje profil uživatele spolu s příspěvky vytvořenými daným uživatelem. Detekuje také, zdali se jedná o profil přihlášeného uživatele nebo cizí, pomocí porovnání id vyhledávaného uživatele s id uživatele z middlewaru attachUser.js. Objekty obou uživatelů poté předá spolu s objektem příspěvků vyhledávaného uživatele do renderované EJS šablony (v případě shody je objekt vyhledávaného uživatele null a tedy objekt s příspěvky vyhledávaného uživatele také).
+\par Funkce `\texttt{changePassword}` zajišťuje změnu hesla, `\texttt{toggleNotifications}` se stará o zapnutí/vypnutí emailových notifikací v případě výskytu příspěvku v uživatelské lokaci a `\texttt{toggleKpNotifications}` o zapnutí/vypnutí emailových notifikací při vysoké intenzitě polární záře (KP index větší nebo rovno 5). Poslední funkce `\texttt{updateLocation}` zajišťuje uložení upravené uživatelské lokace.

@@ -1,0 +1,184 @@
+\documentclass[a4paper, 11pt]{article}
+
+
+
+\usepackage[top=2cm,bottom=2cm,left=3cm,right=3cm,]{geometry}
+\usepackage[scaled=.92]{helvet}
+\usepackage{graphicx}
+\usepackage{index}
+\usepackage{wrapfig}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}\usepackage{listings}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+    }
+
+
+\usepackage[czech]{babel}
+\usepackage{multicol}
+\usepackage{courier} %% Sets font for listing as Courier.
+\usepackage{listings, xcolor}
+\usepackage{tcolorbox}
+\usepackage{tocloft}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{xurl}
+\doublespacing
+%FOR inserting code
+\usepackage{xcolor}
+\usepackage{inconsolata}
+\usepackage{listingsutf8}
+
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.93}
+\definecolor{dkgreen}{rgb}{0,.6,0}
+\definecolor{dkblue}{rgb}{0,0,.6}
+\definecolor{dkyellow}{cmyk}{0,0,.8,.3}
+
+\lstdefinestyle{mystyle}{
+    language=JavaScript,
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegray},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+     emphstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    % keyword highlighting
+    classoffset=1, % starting new class
+    otherkeywords={>,<,.,;,-,!,=,~,\$},
+    morekeywords={>,<,.,;,-,!,=,~,\$},
+    keywordstyle=\color{dkblue},
+    classoffset=0,
+    literate={é}{{\'e}}1
+           {č}{{\v{c}}}1
+           {ľ}{{\v{l}}}1
+           {ť}{{\v{t}}}1
+           {ý}{{\'y}}1
+           {ě}{{\v{e}}}1
+           {ř}{{\v{r}}}1
+           {š}{{\v{s}}}1
+           {ž}{{\v{z}}}1
+           {á}{{\'a}}1
+           {í}{{\'i}}1
+           {ó}{{\'o}}1
+           {ň}{{\v{n}}}1
+           {ď}{{\v{d}}}1
+           {ú}{{\'u}}1
+           {ů}{{\r{u}}}1
+           {ĺ}{{\v{l}}}1
+           {Ú}{{\'U}}1
+           {Č}{{\v{c}}}1
+           {ľ}{{\v{l}}}1
+           {Ť}{{\v{t}}}1
+           {Ý}{{\'y}}1
+           {Ě}{{\v{e}}}1
+           {Ř}{{\v{r}}}1
+           {Š}{{\v{s}}}1
+           {ž}{{\v{z}}}1
+           {Á}{{\'a}}1
+           {Í}{{\'i}}1
+           {Ó}{{\'o}}1
+           {Ň}{{\v{n}}}1
+           {Ď}{{\v{d}}}1
+           {Ů}{{\r{U}}}1
+}
+
+\lstdefinelanguage{JavaScript}{
+    keywords={await, break, case, catch, class, const, continue, debugger, default, delete, do, else, export, extends, false, finally, for, function, if, import, in, instanceof, let, new, null, return, super, switch, this, throw, true, try, typeof, var, void, while, with, yield},
+    morekeywords={async, await, get, set},
+    sensitive=true,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]',
+    morestring=[b]",
+    morestring=[b]` % This ensures backticks are handled properly
+}
+
+
+\lstset{style=mystyle}
+
+
+
+\usepackage[backend=biber, style=numeric]{biblatex}
+\addbibresource{references.bib}
+
+
+\begin{document}
+
+\input{chapters/general_chapters/titlepage}
+
+\newpage
+
+\input{chapters/general_chapters/cestne_prohlaseni}
+
+\newpage 
+
+\input{chapters/general_chapters/anotace}
+
+\newpage
+
+\input{chapters/general_chapters/zadani}
+
+\newpage
+
+\hypersetup{linkcolor=black}
+\tableofcontents
+
+\newpage
+
+\input{chapters/program_chapters/uvod}
+
+\newpage
+
+\input{chapters/program_chapters/Použité_technologie}
+
+\newpage
+
+\input{chapters/program_chapters/reseni_problematiky}
+
+\newpage
+
+\input{chapters/program_chapters/hlavni_funkce_webove_aplikace}
+
+\newpage
+
+\input{chapters/program_chapters/reseni_klicovych_problemu}
+
+\newpage
+
+\include{chapters/program_chapters/Datove_struktury}
+
+\newpage
+
+\include{chapters/program_chapters/zaver}
+
+\newpage
+
+\addcontentsline{toc}{section}{Seznam použitých zdrojů}
+\nocite{*}
+\printbibliography
+
+\newpage
+
+\addcontentsline{toc}{section}{Zdrojový kód}
+\lstlistoflistings 
+
+\end{document}
