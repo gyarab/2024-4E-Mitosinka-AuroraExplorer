@@ -30,7 +30,7 @@ Aurora Explorer is a web application designed for everyone who loves seeing the 
 
 ## Public hosting
 
-[https://aurora.roky.fun]
+https://aurora.roky.fun
 
 ## Instalation
 
