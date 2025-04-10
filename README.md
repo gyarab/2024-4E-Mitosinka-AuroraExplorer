@@ -28,7 +28,7 @@ Aurora Explorer is a web application designed for everyone who loves seeing the 
  - OpenWeatherMap API key
  - Email credentials for notifications
 
-## Public Hosting
+## Official Website
 
 https://aurora.roky.fun
 
