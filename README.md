@@ -78,7 +78,7 @@ node server.js
 
 ### Where to get keys and configurations
 - Google Maps API key: https://developers.google.com/maps/documentation/javascript/get-api-key
-- Google Maps API link: 'https://maps.googleapis.com/maps/api/js?key=API_KEY'
+- Google Maps API link: 'https://maps.googleapis.com/maps/api/js?key=API_KEY' (paste with key to .env in GOOGLE_API_KEY variable)
 - Opeanweahtermap API key: https://openweathermap.org/current
 - Email app password: https://support.google.com/mail/answer/185833?hl=en
 - MongoDB URI: https://www.mongodb.com/docs/manual/reference/connection-string/
